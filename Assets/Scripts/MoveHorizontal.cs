@@ -3,19 +3,11 @@ using System.Collections;
 
 public class MoveHorizontal : MonoBehaviour {
 
-  public float speed = 0.1f;
-  protected Vector3 movement;
-
-	void Start () {
-        this.movement = new Vector3();
-	}
-	
-	void Update () {
-      if (Input.GetKeyDown(KeyCode.LeftArrow)) {
-          this.transform.position += Vector3.left * speed;
-      }
-      if (Input.GetKeyDown(KeyCode.RightArrow)) {
-		  this.transform.position += Vector3.right * speed;
-      }
-	}
+    public float speed = 2.5f;
+    
+    void Update() {
+        float transV = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+        float transH = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
+        transform.Translate(transH, transV, 0);
+    }
 }
