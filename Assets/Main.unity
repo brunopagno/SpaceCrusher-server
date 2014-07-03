@@ -163,9 +163,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e5f590cf022e944a8a2b58a778279e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 3339
-  lastReceivedUDPPacket: 
-  allReceivedUDPPackets: 
+  port: 32154
+  maxConnections: 4
 --- !u!1 &995805263
 GameObject:
   m_ObjectHideFlags: 0

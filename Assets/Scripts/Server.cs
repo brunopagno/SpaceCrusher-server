@@ -8,53 +8,40 @@ using System.Text;
 
 public class Server : MonoBehaviour {
 
-    private Thread serverThread;
+    public int port = 32154;
+    public int maxConnections = 4;
 
-    private UdpClient client;
+    void StartServer() {
+        Debug.Log("Server start");
+        Network.InitializeServer(maxConnections, port, false);
+    }
 
-    public int port = 3339;
-
-    public string lastReceivedUDPPacket = "";
-    public string allReceivedUDPPackets = "";
+    void StopServer() {
+        Debug.Log("Server stop");
+        Network.Disconnect();
+    }
 
     void OnGUI() {
-        Rect rectObj = new Rect(40, 10, 200, 400);
-        GUIStyle style = new GUIStyle();
-        style.alignment = TextAnchor.UpperLeft;
-        GUI.Box(rectObj, "Last Packet: \n" + lastReceivedUDPPacket
-                    + "\n\nAll Messages: \n" + allReceivedUDPPackets, style);
-    }
+        if (Network.peerType == NetworkPeerType.Disconnected) {
+            GUILayout.Label("Game server Offline");
+            if (GUILayout.Button("Start Game Server")) {
+                StartServer();
+            }
+        } else {
+            if (Network.peerType == NetworkPeerType.Connecting) {
+                GUILayout.Label("Server Starting");
+            } else {
+                GUILayout.Label("Game Server Online");
+                GUILayout.Label("Server Ip: " + Network.player.ipAddress + " Port: " + Network.player.port);
+                GUILayout.Label("Clients: " + Network.connections.Length + "/" + maxConnections);
 
-	void Start () {
-         print("UDPSend.init()");
- 
-        serverThread = new Thread(new ThreadStart(Listen));
-        serverThread.IsBackground = true;
-        serverThread.Start();
-	}
-
-    void Listen() {
-        Debug.Log("Server starting on separate thread");
-        client = new UdpClient(port);
-        while (true) {
-            try {
-                IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
-                byte[] data = client.Receive(ref anyIP);
-                Debug.Log("Cliente enviou bagaça. ip:" + anyIP.Address + " port:" + anyIP.Port);
-                string text = Encoding.UTF8.GetString(data);
-                print(">> " + text);
-                lastReceivedUDPPacket = text;
-                allReceivedUDPPackets = allReceivedUDPPackets+text;
-            } catch (Exception err) {
-                print(err.ToString());
+                foreach (NetworkPlayer client in Network.connections) {
+                    GUILayout.Label("Client " + client);
+                }
+            }
+            if (GUILayout.Button("Stop Server")) {
+                StopServer();
             }
         }
-    }
-
-    void OnApplicationQuit() {
-        Debug.Log("Quit server on application quit");
-        this.serverThread.Abort();
-        if (this.client != null)
-            this.client.Close();
     }
 }
