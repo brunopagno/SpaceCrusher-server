@@ -11,15 +11,26 @@ public class Server : MonoBehaviour {
     private Thread serverThread;
 
     private UdpClient client;
-    private IPEndPoint remoteIpEndPoint;
 
     public int port = 3339;
 
-	// Use this for initialization
-	void Start () {
-        client = new UdpClient(this.port);
-        remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+    public string lastReceivedUDPPacket = "";
+    public string allReceivedUDPPackets = "";
 
+    void OnGUI() {
+        Rect rectObj = new Rect(40, 10, 200, 400);
+        GUIStyle style = new GUIStyle();
+        style.alignment = TextAnchor.UpperLeft;
+        GUI.Box(rectObj, "# UDPReceive\n127.0.0.1 " + port + " #\n"
+                    + "shell> nc -u 127.0.0.1 : " + port + " \n"
+                    + "\nLast Packet: \n" + lastReceivedUDPPacket
+                    + "\n\nAll Messages: \n" + allReceivedUDPPackets
+                , style);
+    }
+
+	void Start () {
+         print("UDPSend.init()");
+ 
         serverThread = new Thread(new ThreadStart(Listen));
         serverThread.IsBackground = true;
         serverThread.Start();
@@ -27,17 +38,19 @@ public class Server : MonoBehaviour {
 
     void Listen() {
         Debug.Log("Server starting on separate thread");
-        while(true) {
+        client = new UdpClient(port);
+        while (true) {
             try {
-                Debug.Log("Waiting to reveice data");
-                Byte[] receiveBytes = this.client.Receive(ref remoteIpEndPoint);
-                string returnData = Encoding.ASCII.GetString(receiveBytes);
-
-                Debug.Log("This is the message you received " + returnData.ToString());
-                Debug.Log("This message was sent from " + remoteIpEndPoint.Address.ToString() +
-                                            " on their port number " + remoteIpEndPoint.Port.ToString());
-            } catch (Exception e) {
-                Debug.Log(e.ToString());
+                IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
+                byte[] data = client.Receive(ref anyIP);
+                Debug.Log("Cliente enviou bagaça. ip:" + anyIP.Address + " port:" + anyIP.Port);
+                string text = Encoding.UTF8.GetString(data);
+                print(">> " + text);
+                lastReceivedUDPPacket = text;
+                allReceivedUDPPackets = allReceivedUDPPackets+text;
+               
+            } catch (Exception err) {
+                print(err.ToString());
             }
         }
     }
