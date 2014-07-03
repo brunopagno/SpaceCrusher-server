@@ -164,6 +164,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 3339
+  lastReceivedUDPPacket: 
+  allReceivedUDPPackets: 
 --- !u!1 &995805263
 GameObject:
   m_ObjectHideFlags: 0

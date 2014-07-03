@@ -21,11 +21,8 @@ public class Server : MonoBehaviour {
         Rect rectObj = new Rect(40, 10, 200, 400);
         GUIStyle style = new GUIStyle();
         style.alignment = TextAnchor.UpperLeft;
-        GUI.Box(rectObj, "# UDPReceive\n127.0.0.1 " + port + " #\n"
-                    + "shell> nc -u 127.0.0.1 : " + port + " \n"
-                    + "\nLast Packet: \n" + lastReceivedUDPPacket
-                    + "\n\nAll Messages: \n" + allReceivedUDPPackets
-                , style);
+        GUI.Box(rectObj, "Last Packet: \n" + lastReceivedUDPPacket
+                    + "\n\nAll Messages: \n" + allReceivedUDPPackets, style);
     }
 
 	void Start () {
@@ -48,7 +45,6 @@ public class Server : MonoBehaviour {
                 print(">> " + text);
                 lastReceivedUDPPacket = text;
                 allReceivedUDPPackets = allReceivedUDPPackets+text;
-               
             } catch (Exception err) {
                 print(err.ToString());
             }
