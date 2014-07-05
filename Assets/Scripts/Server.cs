@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Server : MonoBehaviour {
 
     public int port = 32154;
     public int maxConnections = 4;
-    public GameObject shipPrefab;
+    public PlayerShip shipPrefab;
+
+    private int PLAYER_ID = 1;
+    private List<PlayerShip> ships = new List<PlayerShip>(); 
 
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
@@ -17,14 +21,30 @@ public class Server : MonoBehaviour {
 
     void StopServer() {
         Network.Disconnect();
+        foreach (PlayerShip ship in ships) {
+            ship.RemoveFromGame();
+        }
+        ships.Clear();
     }
 
-    //void OnPlayerConnected(NetworkPlayer player) {
-    //    this.AddShip();
-    //}
-    //private void AddShip() {
-    //    Network.Instantiate(shipPrefab, new Vector3(333, 444, 0), Quaternion.identity, 0);
-    //}
+    void OnPlayerConnected(NetworkPlayer player) {
+        PlayerShip ship = (PlayerShip) Instantiate(shipPrefab, new Vector3(1, 2.5f, 0), Quaternion.identity);
+        ship.Id = NextPlayerId();
+        ship.Player = player;
+        ships.Add(ship);
+        networkView.RPC("RPCIn", player, "PID:" + ship.Id);
+    }
+
+    void OnPlayerDisconnected(NetworkPlayer player) {
+        for (int i = 0; i < ships.Count; i++) {
+            PlayerShip ship = ships[i];
+            if (ship.Player.Equals(player)) {
+                ship.RemoveFromGame();
+                ships.RemoveAt(i);
+                break;
+            }
+        }
+    }
 
     [RPC]
     void RPCOut(string info) {
@@ -63,5 +83,9 @@ public class Server : MonoBehaviour {
                 StopServer();
             }
         }
+    }
+
+    private int NextPlayerId() {
+        return PLAYER_ID++;
     }
 }
