@@ -3,6 +3,8 @@ using System.Collections;
 
 public class PlayerShip : MonoBehaviour {
 
+    public SpriteRenderer dotRenderer;
+
     protected int id;
     public int Id {
         get { return this.id; }

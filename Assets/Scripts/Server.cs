@@ -31,6 +31,7 @@ public class Server : MonoBehaviour {
 
     void OnPlayerConnected(NetworkPlayer player) {
         PlayerShip ship = (PlayerShip) Instantiate(shipPrefab, new Vector3(1, 2.5f, 0), Quaternion.identity);
+        ship.dotRenderer.color = NextPlayerColor();
         ship.Id = NextPlayerId();
         ship.Player = player;
         ships.Add(ship);
@@ -48,10 +49,6 @@ public class Server : MonoBehaviour {
         }
     }
 
-    void Update() {
-
-    }
-
     [RPC]
     void RPCOut(string info) {
         networkView.RPC("RPCIn", RPCMode.Others, info);
@@ -65,6 +62,25 @@ public class Server : MonoBehaviour {
 
     private int NextPlayerId() {
         return PLAYER_ID++;
+    }
+
+    private Color NextPlayerColor() {
+        switch (PLAYER_ID) {
+            case 1:
+                return Color.blue;
+            case 2:
+                return Color.red;
+            case 3:
+                return Color.green;
+            case 4:
+                return Color.yellow;
+            case 5:
+                return Color.magenta;
+            case 6:
+                return Color.cyan;
+            default:
+                return Color.white;
+        }
     }
 
     void OnGUI() {
