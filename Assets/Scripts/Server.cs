@@ -8,7 +8,8 @@ public class Server : MonoBehaviour {
     public PlayerShip shipPrefab;
 
     private int PLAYER_ID = 1;
-    private List<PlayerShip> ships = new List<PlayerShip>(); 
+    private List<PlayerShip> ships = new List<PlayerShip>();
+    private bool gameStart;
 
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
@@ -17,6 +18,7 @@ public class Server : MonoBehaviour {
     void StartServer() {
         Network.InitializeServer(maxConnections, port, false);
         MasterServer.RegisterHost(TYPE_NAME, GAME_NAME);
+        gameStart = false;
     }
 
     void StopServer() {
@@ -46,6 +48,10 @@ public class Server : MonoBehaviour {
         }
     }
 
+    void Update() {
+
+    }
+
     [RPC]
     void RPCOut(string info) {
         networkView.RPC("RPCIn", RPCMode.Others, info);
@@ -59,5 +65,20 @@ public class Server : MonoBehaviour {
 
     private int NextPlayerId() {
         return PLAYER_ID++;
+    }
+
+    void OnGUI() {
+        if (Network.peerType == NetworkPeerType.Disconnected) {
+            GUILayout.Label("Game server Offline");
+            if (GUILayout.Button("Start Game Server")) {
+                StartServer();
+            }
+        } else {
+            if (ships.Count < 1) {
+                GUILayout.Label("Waiting for players to connect");
+            } else if (!gameStart) {
+                GUILayout.Label("Waiting for a player to start game");
+            }
+        }
     }
 }
