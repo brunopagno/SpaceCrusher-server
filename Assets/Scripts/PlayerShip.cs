@@ -22,10 +22,6 @@ public class PlayerShip : MonoBehaviour {
         transform.Translate(horizontal, 0, 0);
     }
 
-    void OnGui() {
-        GUILayout.Label(Id.ToString());
-    }
-
     internal void RemoveFromGame() {
         Destroy(gameObject);
     }

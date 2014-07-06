@@ -57,34 +57,6 @@ public class Server : MonoBehaviour {
         inmessages += info + "\n";
     }
 
-    void OnGUI() {
-        if (Network.peerType == NetworkPeerType.Disconnected) {
-            GUILayout.Label("Game server Offline");
-            if (GUILayout.Button("Start Game Server")) {
-                StartServer();
-            }
-        } else {
-            if (Network.peerType == NetworkPeerType.Connecting) {
-                GUILayout.Label("Server Starting");
-            } else {
-                GUILayout.Label("Game Server Online");
-                GUILayout.Label("Server Ip: " + Network.player.ipAddress + " Port: " + Network.player.port);
-                GUILayout.Label("Clients: " + Network.connections.Length + "/" + maxConnections);
-
-                foreach (NetworkPlayer client in Network.connections) {
-                    GUILayout.Label("Client " + client);
-                }
-                if (GUILayout.Button("Make magic")) {
-                    RPCOut("isahtoathas");
-                }
-                GUILayout.Label(inmessages);
-            }
-            if (GUILayout.Button("Stop Server")) {
-                StopServer();
-            }
-        }
-    }
-
     private int NextPlayerId() {
         return PLAYER_ID++;
     }
