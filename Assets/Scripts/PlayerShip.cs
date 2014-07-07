@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerShip : MonoBehaviour {
 
     public SpriteRenderer dotRenderer;
+    public GameObject ship;
 
     protected int id;
     public int Id {
@@ -15,13 +16,6 @@ public class PlayerShip : MonoBehaviour {
     public NetworkPlayer Player {
         get { return this.player; }
         set { this.player = value; }
-    }
-
-    public float speed = 8f;
-
-    void Update() {
-        float horizontal = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-        transform.Translate(horizontal, 0, 0);
     }
 
     internal void RemoveFromGame() {

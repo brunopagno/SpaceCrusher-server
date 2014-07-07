@@ -66,6 +66,18 @@ public class Server : MonoBehaviour {
         if (msg.Equals("start")) { // when one player sends a start message star the game and warn all players.
             IsGameStarted = true;
             OutMessage("start");
+        } else {
+            string[] stringProtocol = msg.Split(':');
+            int id = int.Parse(stringProtocol[0]);
+            string action = stringProtocol[1];
+            string[] prms = stringProtocol[2].Split(',');
+            switch (action) {
+                case "pos":
+                    ships[id].transform.position = new Vector3(float.Parse(prms[0]), ships[id].transform.position.y, ships[id].transform.position.z);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
