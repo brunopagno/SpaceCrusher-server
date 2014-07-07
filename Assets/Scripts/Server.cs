@@ -30,7 +30,7 @@ public class Server : MonoBehaviour {
     }
 
     void OnPlayerConnected(NetworkPlayer player) {
-        PlayerShip ship = (PlayerShip) Instantiate(shipPrefab, new Vector3(1, 2.5f, 0), Quaternion.identity);
+        PlayerShip ship = (PlayerShip) Instantiate(shipPrefab);
         ship.dotRenderer.color = NextPlayerColor();
         ship.Id = NextPlayerId();
         ship.Player = player;
