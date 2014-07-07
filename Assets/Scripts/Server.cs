@@ -9,16 +9,19 @@ public class Server : MonoBehaviour {
 
     private int PLAYER_ID = 1;
     private List<PlayerShip> ships = new List<PlayerShip>();
-    private bool gameStart;
+    private bool isGameStarted;
+    public bool IsGameStarted {
+        get { return this.isGameStarted; }
+        private set { this.isGameStarted = value; }
+    }
 
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
-    private string inmessages = "";
 
     void StartServer() {
         Network.InitializeServer(maxConnections, port, false);
         MasterServer.RegisterHost(TYPE_NAME, GAME_NAME);
-        gameStart = false;
+        IsGameStarted = false;
     }
 
     void StopServer() {
@@ -30,12 +33,14 @@ public class Server : MonoBehaviour {
     }
 
     void OnPlayerConnected(NetworkPlayer player) {
-        PlayerShip ship = (PlayerShip) Instantiate(shipPrefab);
-        ship.dotRenderer.color = NextPlayerColor();
-        ship.Id = NextPlayerId();
-        ship.Player = player;
-        ships.Add(ship);
-        networkView.RPC("RPCIn", player, "PID:" + ship.Id);
+        if (!IsGameStarted) {
+            PlayerShip ship = (PlayerShip)Instantiate(shipPrefab);
+            ship.dotRenderer.color = NextPlayerColor();
+            ship.Id = NextPlayerId();
+            ship.Player = player;
+            ships.Add(ship);
+            networkView.RPC("InMessage", player, "PID:" + ship.Id);
+        }
     }
 
     void OnPlayerDisconnected(NetworkPlayer player) {
@@ -50,14 +55,18 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
-    void RPCOut(string info) {
-        networkView.RPC("RPCIn", RPCMode.Others, info);
+    void OutMessage(string msg) {
+        networkView.RPC("InMessage", RPCMode.Others, msg);
     }
 
     [RPC]
-    void RPCIn(string info) {
-        Debug.Log("Received message -> " + info);
-        inmessages += info + "\n";
+    void InMessage(string msg) {
+        Debug.Log("Received message -> " + msg);
+
+        if (msg.Equals("start")) { // when one player sends a start message star the game and warn all players.
+            IsGameStarted = true;
+            OutMessage("start");
+        }
     }
 
     private int NextPlayerId() {
@@ -84,16 +93,18 @@ public class Server : MonoBehaviour {
     }
 
     void OnGUI() {
-        if (Network.peerType == NetworkPeerType.Disconnected) {
-            GUILayout.Label("Game server Offline");
-            if (GUILayout.Button("Start Game Server")) {
-                StartServer();
-            }
-        } else {
-            if (ships.Count < 1) {
-                GUILayout.Label("Waiting for players to connect");
-            } else if (!gameStart) {
-                GUILayout.Label("Waiting for a player to start game");
+        if (!IsGameStarted) {
+            if (Network.peerType == NetworkPeerType.Disconnected) {
+                GUILayout.Label("Game server Offline");
+                if (GUILayout.Button("Start Game Server")) {
+                    StartServer();
+                }
+            } else {
+                if (ships.Count < 1) {
+                    GUILayout.Label("Waiting for players to connect");
+                } else if (!IsGameStarted) {
+                    GUILayout.Label("Waiting for a player to start game");
+                }
             }
         }
     }
