@@ -1232,6 +1232,7 @@ MonoBehaviour:
   port: 32154
   maxConnections: 4
   shipPrefab: {fileID: 11400002, guid: 2ce3abd6687464249958dabf2d36cba4, type: 2}
+  asteroidPrefab: {fileID: 100002, guid: 1d3e31935bc0907478c463a517d6483d, type: 2}
 --- !u!148 &798284554
 NetworkView:
   m_ObjectHideFlags: 0

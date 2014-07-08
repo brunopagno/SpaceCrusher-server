@@ -6,6 +6,7 @@ public class Server : MonoBehaviour {
     public int port = 32154;
     public int maxConnections = 4;
     public PlayerShip shipPrefab;
+    public GameObject asteroidPrefab;
 
     private int PLAYER_ID = 1;
     private List<PlayerShip> ships = new List<PlayerShip>();
@@ -61,10 +62,10 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
-    public void SendPosition(string position) {}
+    public void SendPosition(string position) { }
 
     [RPC]
-    public void SendChangedGun(string gun) {}
+    public void SendChangedGun(string gun) { }
 
     [RPC]
     void ChangeGun(string message) {
@@ -86,6 +87,10 @@ public class Server : MonoBehaviour {
     void RPCStart(string nothing) {
         IsGameStarted = true;
         networkView.RPC("RPCStart", RPCMode.Server, string.Empty);
+
+        for (int i = 0; i < 4; i++) {
+            Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+        }
     }
 
     [RPC]
