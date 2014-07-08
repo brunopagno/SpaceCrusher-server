@@ -4,7 +4,6 @@ using System.Collections;
 public class PlayerShip : MonoBehaviour {
 
     public SpriteRenderer dotRenderer;
-    public GameObject ship;
 
     protected int id;
     public int Id {
@@ -20,5 +19,10 @@ public class PlayerShip : MonoBehaviour {
 
     internal void RemoveFromGame() {
         Destroy(gameObject);
+    }
+
+    public void MoveTo(float x) {
+        Vector3 cv = Camera.main.ScreenToWorldPoint(new Vector3((x * Screen.width), transform.position.y, transform.position.z));
+        transform.position = new Vector3(cv.x, transform.position.y, transform.position.z);
     }
 }

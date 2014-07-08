@@ -39,7 +39,7 @@ public class Server : MonoBehaviour {
             ship.Id = NextPlayerId();
             ship.Player = player;
             ships.Add(ship);
-            networkView.RPC("InMessage", player, "PID:" + ship.Id);
+            networkView.RPC("RPCIn", player, "PID:" + ship.Id);
         }
     }
 
@@ -54,32 +54,44 @@ public class Server : MonoBehaviour {
         }
     }
 
+    #region RPC
     [RPC]
-    void OutMessage(string msg) {
-        networkView.RPC("InMessage", RPCMode.Others, msg);
+    public void RPCOut(string info) {
+        networkView.RPC("RPCIn", RPCMode.Server, info);
     }
 
     [RPC]
-    void InMessage(string msg) {
-        Debug.Log("Received message -> " + msg);
+    public void SendPosition(string position) {}
 
-        if (msg.Equals("start")) { // when one player sends a start message star the game and warn all players.
-            IsGameStarted = true;
-            OutMessage("start");
-        } else {
-            string[] stringProtocol = msg.Split(':');
-            int id = int.Parse(stringProtocol[0]);
-            string action = stringProtocol[1];
-            string[] prms = stringProtocol[2].Split(',');
-            switch (action) {
-                case "pos":
-                    ships[id].transform.position = new Vector3(float.Parse(prms[0]), ships[id].transform.position.y, ships[id].transform.position.z);
-                    break;
-                default:
-                    break;
-            }
-        }
+    [RPC]
+    public void SendChangedGun(string gun) {}
+
+    [RPC]
+    void ChangeGun(string message) {
     }
+
+    [RPC]
+    void MovePlayer(string message) {
+        string[] d = message.Split(':');
+        PlayerShip s = GetShip(int.Parse(d[0]));
+        s.MoveTo(float.Parse(d[1]));
+    }
+
+    [RPC]
+    void RPCIn(string info) {
+        Debug.Log("Received message -> " + info);
+    }
+
+    [RPC]
+    void RPCStart(string nothing) {
+        IsGameStarted = true;
+        networkView.RPC("RPCStart", RPCMode.Server, string.Empty);
+    }
+
+    [RPC]
+    void SetLife(string _message) {
+    }
+    #endregion
 
     private int NextPlayerId() {
         return PLAYER_ID++;
@@ -102,6 +114,15 @@ public class Server : MonoBehaviour {
             default:
                 return Color.white;
         }
+    }
+
+    private PlayerShip GetShip(int id) {
+        foreach (PlayerShip ship in ships) {
+            if (ship.Id == id) {
+                return ship;
+            }
+        }
+        return null;
     }
 
     void OnGUI() {
