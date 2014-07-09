@@ -15,6 +15,11 @@ public class Server : MonoBehaviour {
         get { return this.isGameStarted; }
         private set { this.isGameStarted = value; }
     }
+    private bool isGameEnded = false;
+    public bool IsGameEnded {
+        get { return this.isGameEnded; }
+        set { this.isGameEnded = value; }
+    }
     private bool theAsteroidsAreThere = false;
 
     private const string TYPE_NAME = "IHA-SPG0";
@@ -59,7 +64,7 @@ public class Server : MonoBehaviour {
     #region RPC
     [RPC]
     public void RPCOut(string info) {
-        networkView.RPC("RPCIn", RPCMode.Server, info);
+        networkView.RPC("RPCIn", RPCMode.Others, info);
     }
 
     [RPC]
@@ -69,8 +74,7 @@ public class Server : MonoBehaviour {
     public void SendChangedGun(string gun) { }
 
     [RPC]
-    void ChangeGun(string message) {
-    }
+    void ChangeGun(string message) { }
 
     [RPC]
     void MovePlayer(string message) {
@@ -87,7 +91,7 @@ public class Server : MonoBehaviour {
     [RPC]
     void RPCStart(string nothing) {
         IsGameStarted = true;
-        networkView.RPC("RPCStart", RPCMode.Server, string.Empty);
+        networkView.RPC("RPCStart", RPCMode.Others, string.Empty);
 
         if (!theAsteroidsAreThere) {
             theAsteroidsAreThere = true;
@@ -95,10 +99,15 @@ public class Server : MonoBehaviour {
                 Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
             }
         }
+
+        foreach (PlayerShip ship in ships) {
+            SetLife(ship.Id + ":" + ship.life);
+        }
     }
 
     [RPC]
-    void SetLife(string _message) {
+    public void SetLife(string message) {
+        networkView.RPC("SetLife", RPCMode.Others, message);
     }
     #endregion
 
@@ -134,6 +143,24 @@ public class Server : MonoBehaviour {
         return null;
     }
 
+    void Update() {
+        if (IsGameStarted) {
+            bool ended = true;
+            foreach (PlayerShip ship in ships) {
+                if (ship.life > 0) {
+                    ended = false;
+                }
+            }
+            if (ended) {
+                IsGameEnded = true;
+                GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
+                foreach (GameObject asteroid in asteroids) {
+                    Destroy(asteroid);
+                }
+            }
+        }
+    }
+
     void OnGUI() {
         if (!IsGameStarted) {
             if (Network.peerType == NetworkPeerType.Disconnected) {
@@ -147,6 +174,12 @@ public class Server : MonoBehaviour {
                 } else if (!IsGameStarted) {
                     GUILayout.Label("Waiting for a player to start game");
                 }
+            }
+        }
+        if (IsGameEnded) {
+            GUILayout.Label("Game ended.");
+            foreach (PlayerShip ship in ships) {
+                GUILayout.Label("Player " + ship.Id + " - " + ship.Score);
             }
         }
     }
