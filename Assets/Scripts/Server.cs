@@ -15,6 +15,7 @@ public class Server : MonoBehaviour {
         get { return this.isGameStarted; }
         private set { this.isGameStarted = value; }
     }
+    private bool theAsteroidsAreThere = false;
 
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
@@ -88,8 +89,11 @@ public class Server : MonoBehaviour {
         IsGameStarted = true;
         networkView.RPC("RPCStart", RPCMode.Server, string.Empty);
 
-        for (int i = 0; i < 4; i++) {
-            Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+        if (!theAsteroidsAreThere) {
+            theAsteroidsAreThere = true;
+            for (int i = 0; i < 4; i++) {
+                Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+            }
         }
     }
 
