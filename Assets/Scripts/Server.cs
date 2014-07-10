@@ -12,16 +12,21 @@ public class Server : MonoBehaviour {
     public PlayerShip shipPrefab;
     public GameObject asteroidPrefab;
     public GameObject asteroideePrefab;
+    public GameObject specialPrefab;
+    public GameObject lifePrefab;
 
     private int PLAYER_ID = 1;
     private List<PlayerShip> ships = new List<PlayerShip>();
     private GameState state;
     private bool theAsteroidsAreThere = false;
 
+    public string difficulty;
+
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
 
     private float gameTime = 10;
+    private float extraTimer = 12.8f;
 
     private float meteorRushTime = 0;
     private bool meteorRush = false;
@@ -127,19 +132,7 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void RPCStart(string nothing) {
-        state = GameState.Started;
-        networkView.RPC("RPCStart", RPCMode.Others, string.Empty);
-
-        if (!theAsteroidsAreThere) {
-            theAsteroidsAreThere = true;
-            for (int i = 0; i < 4; i++) {
-                Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
-            }
-        }
-
-        foreach (PlayerShip ship in ships) {
-            SetLife(ship.Id + ":" + ship.life);
-        }
+        StartGame();
     }
 
     [RPC]
@@ -162,7 +155,6 @@ public class Server : MonoBehaviour {
                 StartRush();
                 break;
         }
-        // TODO: SOMETHING HERE
     }
 
     [RPC]
@@ -206,6 +198,17 @@ public class Server : MonoBehaviour {
 
     void Update() {
         if (state == GameState.Started) {
+            extraTimer -= Time.deltaTime;
+            if (extraTimer <= 0) {
+                extraTimer = Random.Range(8f, 15f);
+                int rand = Random.Range(0, 99);
+                if (rand % 2 == 0) {
+                    Instantiate(specialPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+                } else {
+                    Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+                }
+            }
+
             if (meteorRush) {
                 meteorRushTime += Time.deltaTime;
                 if (meteorRushTime > 5) {
@@ -254,6 +257,24 @@ public class Server : MonoBehaviour {
         meteorRush = false;
     }
 
+    private void StartGame() {
+        state = GameState.Started;
+        networkView.RPC("RPCStart", RPCMode.Others, string.Empty);
+
+        if (!theAsteroidsAreThere) {
+            theAsteroidsAreThere = true;
+            int amount = int.Parse(difficulty);
+            amount *= 5;
+            for (int i = 0; i < amount; i++) {
+                Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+            }
+        }
+
+        foreach (PlayerShip ship in ships) {
+            SetLife(ship.Id + ":" + ship.life);
+        }
+    }
+
     private void EndGame() {
         state = GameState.Ended;
         GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
@@ -272,6 +293,8 @@ public class Server : MonoBehaviour {
                 if (GUILayout.Button("Start Game Server")) {
                     StartServer();
                 }
+                GUILayout.Label("Difficulty (int):");
+                difficulty = GUILayout.TextField(difficulty);
             } else {
                 if (ships.Count < 1) {
                     GUILayout.Label("Waiting for players to connect");
