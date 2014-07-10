@@ -36,6 +36,8 @@ public class PlayerShip : MonoBehaviour {
     private int gun3Ammo = 1;
     private int specialAmmo = 0;
     private int gun = 1;
+    
+    private bool endedGame;
 
     internal void RemoveFromGame() {
         Destroy(gameObject);
@@ -50,6 +52,9 @@ public class PlayerShip : MonoBehaviour {
     }
 
     void Update() {
+        if (endedGame) {
+            return;
+        }
         time += Time.deltaTime;
         if (life == 0) {
             if (time > 3) {
@@ -101,7 +106,9 @@ public class PlayerShip : MonoBehaviour {
     }
 
     public void HitScore() {
+        GameObject server = GameObject.Find("Server");
         this.score++;
+        server.GetComponent<Server>().SyncScore(Id + ":" + score.ToString());
     }
 
     public void TakeHit() {
@@ -152,13 +159,20 @@ public class PlayerShip : MonoBehaviour {
         }
     }
 
-    public void addAmmo(int p1, int p2, int p3) {
+    public void RouletteResult(int ammo2, int ammo3, int lifep) {
         GameObject server = GameObject.Find("Server");
-        gun2Ammo += p1;
-        gun3Ammo += p2;
-        specialAmmo += p3;
+        gun2Ammo += ammo2;
+        gun3Ammo += ammo3;
+        life += lifep;
         server.GetComponent<Server>().SetBulletsGun2("" + Id + ":" + gun2Ammo);
         server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
-        server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
+        server.GetComponent<Server>().SetLife("" + Id + ":" + life);
+    }
+
+    public void EndedGame() {
+        endedGame = true;
+        Destroy(gameObject.GetComponent<Rigidbody2D>());
+        Destroy(gameObject.GetComponent<CircleCollider2D>());
+        Destroy(gameObject.GetComponent<SpriteRenderer>());
     }
 }

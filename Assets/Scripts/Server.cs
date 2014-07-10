@@ -11,6 +11,7 @@ public class Server : MonoBehaviour {
     public int maxConnections = 4;
     public PlayerShip shipPrefab;
     public GameObject asteroidPrefab;
+    public GameObject asteroideePrefab;
 
     private int PLAYER_ID = 1;
     private List<PlayerShip> ships = new List<PlayerShip>();
@@ -19,6 +20,12 @@ public class Server : MonoBehaviour {
 
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
+
+    private float gameTime = 10;
+
+    private float meteorRushTime = 0;
+    private bool meteorRush = false;
+    private List<GameObject> rushedMeteors = new List<GameObject>();
 
     void StartServer() {
         Network.InitializeServer(maxConnections, port, false);
@@ -63,12 +70,6 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
-    public void SendPosition(string position) { }
-
-    [RPC]
-    public void SendChangedGun(string gun) { }
-
-    [RPC]
     public void SetBulletsGun1(string message) {
         networkView.RPC("SetBulletsGun1", RPCMode.Others, message);
     }
@@ -86,6 +87,16 @@ public class Server : MonoBehaviour {
     [RPC]
     public void SetBulletsSpecial(string message) {
         networkView.RPC("SetBulletsSpecial", RPCMode.Others, message);
+    }
+
+    [RPC]
+    public void SyncScore(string message) {
+        networkView.RPC("SyncScore", RPCMode.Others, message);
+    }
+
+    [RPC]
+    public void SetLife(string message) {
+        networkView.RPC("SetLife", RPCMode.Others, message);
     }
     #endregion
 
@@ -132,11 +143,6 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
-    public void SetLife(string message) {
-        networkView.RPC("SetLife", RPCMode.Others, message);
-    }
-
-    [RPC]
     void RouletResult(string message) {
         string[] d = message.Split(':');
         PlayerShip s = GetShip(int.Parse(d[0]));
@@ -144,20 +150,26 @@ public class Server : MonoBehaviour {
         int result = int.Parse(d[1]);
         switch (result) {
             case 1:
-                s.addAmmo(1, 1, 0);
+                s.RouletteResult(0, 0, 1);
                 break;
             case 2:
-                s.addAmmo(1, 0, 1);
+                s.RouletteResult(1, 0, 0);
                 break;
             case 3:
-                s.addAmmo(0, 1, 1);
+                s.RouletteResult(0, 1, 0);
                 break;
             case 4:
-                s.addAmmo(2, 0, 0);
+                StartRush();
                 break;
         }
         // TODO: SOMETHING HERE
     }
+
+    [RPC]
+    public void SendPosition(string position) { }
+
+    [RPC]
+    public void SendChangedGun(string gun) { }
     #endregion
 
     private int NextPlayerId() {
@@ -194,19 +206,62 @@ public class Server : MonoBehaviour {
 
     void Update() {
         if (state == GameState.Started) {
+            if (meteorRush) {
+                meteorRushTime += Time.deltaTime;
+                if (meteorRushTime > 5) {
+                    meteorRush = false;
+                    meteorRushTime = 0;
+                    EndRush();
+                }
+            }
             bool ended = true;
             foreach (PlayerShip ship in ships) {
                 if (ship.life > 0) {
                     ended = false;
                 }
             }
-            if (ended) {
-                state = GameState.Ended;
-                GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
-                foreach (GameObject asteroid in asteroids) {
-                    Destroy(asteroid);
-                }
+            gameTime -= Time.deltaTime;
+            if (gameTime < 0) {
+                gameTime = 0;
+                ended = true;
             }
+            if (ended) {
+                EndGame();
+            }
+        }
+
+        // FOR DEBUG ONLY
+        //if (Input.GetKeyDown(KeyCode.Space)) {
+        //    if (meteorRush) {
+        //        EndRush();
+        //    } else {
+        //        StartRush();
+        //    }
+        //}
+    }
+
+    private void StartRush() {
+        meteorRush = true;
+        for (int i = 0; i < 4; i++) {
+            rushedMeteors.Add((GameObject)Instantiate(asteroideePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity));
+        }
+    }
+
+    private void EndRush() {
+        foreach (GameObject rushy in rushedMeteors) {
+            Destroy(rushy);
+        }
+        meteorRush = false;
+    }
+
+    private void EndGame() {
+        state = GameState.Ended;
+        GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject asteroid in asteroids) {
+            Destroy(asteroid);
+        }
+        foreach (PlayerShip ship in ships) {
+            ship.EndedGame();
         }
     }
 
@@ -225,11 +280,17 @@ public class Server : MonoBehaviour {
                 }
             }
         }
+        if (state == GameState.Started || state == GameState.Special) {
+            GUILayout.Label("Seconds remaining: " + gameTime.ToString("N"));
+            if (meteorRush) {
+                GUILayout.Label("IN RUSH");
+            }
+        }
         if (state == GameState.Ended) {
             GUILayout.Label("Game ended.");
             foreach (PlayerShip ship in ships) {
                 GUI.contentColor = GetPlayerColor(ship.Id);
-                GUILayout.Label("Player " + ship.Id + " - " + ship.Score + " points");
+                GUILayout.Label("Player " + ship.Id + ": " + ship.Score + " points");
             }
         }
     }
