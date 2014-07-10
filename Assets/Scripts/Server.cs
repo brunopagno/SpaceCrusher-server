@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class Server : MonoBehaviour {
 
+    private enum GameState {
+        Unstarted, Started, Ended, Special
+    }
+
     public int port = 32154;
     public int maxConnections = 4;
     public PlayerShip shipPrefab;
@@ -10,16 +14,7 @@ public class Server : MonoBehaviour {
 
     private int PLAYER_ID = 1;
     private List<PlayerShip> ships = new List<PlayerShip>();
-    private bool isGameStarted;
-    public bool IsGameStarted {
-        get { return this.isGameStarted; }
-        private set { this.isGameStarted = value; }
-    }
-    private bool isGameEnded = false;
-    public bool IsGameEnded {
-        get { return this.isGameEnded; }
-        set { this.isGameEnded = value; }
-    }
+    private GameState state;
     private bool theAsteroidsAreThere = false;
 
     private const string TYPE_NAME = "IHA-SPG0";
@@ -28,7 +23,7 @@ public class Server : MonoBehaviour {
     void StartServer() {
         Network.InitializeServer(maxConnections, port, false);
         MasterServer.RegisterHost(TYPE_NAME, GAME_NAME);
-        IsGameStarted = false;
+        state = GameState.Unstarted;
     }
 
     void StopServer() {
@@ -40,9 +35,9 @@ public class Server : MonoBehaviour {
     }
 
     void OnPlayerConnected(NetworkPlayer player) {
-        if (!IsGameStarted) {
+        if (state == GameState.Unstarted) {
             PlayerShip ship = (PlayerShip)Instantiate(shipPrefab);
-            ship.dotRenderer.color = NextPlayerColor();
+            ship.dotRenderer.color = GetPlayerColor(PLAYER_ID);
             ship.Id = NextPlayerId();
             ship.Player = player;
             ships.Add(ship);
@@ -61,7 +56,7 @@ public class Server : MonoBehaviour {
         }
     }
 
-    #region RPC
+    #region RPCOut
     [RPC]
     public void RPCOut(string info) {
         networkView.RPC("RPCIn", RPCMode.Others, info);
@@ -74,7 +69,38 @@ public class Server : MonoBehaviour {
     public void SendChangedGun(string gun) { }
 
     [RPC]
-    void ChangeGun(string message) { }
+    public void SetBulletsGun1(string message) {
+        networkView.RPC("SetBulletsGun1", RPCMode.Others, message);
+    }
+
+    [RPC]
+    public void SetBulletsGun2(string message) {
+        networkView.RPC("SetBulletsGun2", RPCMode.Others, message);
+    }
+
+    [RPC]
+    public void SetBulletsGun3(string message) {
+        networkView.RPC("SetBulletsGun3", RPCMode.Others, message);
+    }
+
+    [RPC]
+    public void SetBulletsSpecial(string message) {
+        networkView.RPC("SetBulletsSpecial", RPCMode.Others, message);
+    }
+    #endregion
+
+    #region RPCIn
+    [RPC]
+    void ChangeGun(string message) {
+        string[] d = message.Split(':');
+        PlayerShip s = GetShip(int.Parse(d[0]));
+        if (d[1].Equals("gunSpecial")) {
+            state = GameState.Special;
+        } else {
+            state = GameState.Started;
+        }
+        s.SetGun(d[1]);
+    }
 
     [RPC]
     void MovePlayer(string message) {
@@ -90,7 +116,7 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void RPCStart(string nothing) {
-        IsGameStarted = true;
+        state = GameState.Started;
         networkView.RPC("RPCStart", RPCMode.Others, string.Empty);
 
         if (!theAsteroidsAreThere) {
@@ -109,14 +135,37 @@ public class Server : MonoBehaviour {
     public void SetLife(string message) {
         networkView.RPC("SetLife", RPCMode.Others, message);
     }
+
+    [RPC]
+    void RouletResult(string message) {
+        string[] d = message.Split(':');
+        PlayerShip s = GetShip(int.Parse(d[0]));
+
+        int result = int.Parse(d[1]);
+        switch (result) {
+            case 1:
+                s.addAmmo(1, 1, 0);
+                break;
+            case 2:
+                s.addAmmo(1, 0, 1);
+                break;
+            case 3:
+                s.addAmmo(0, 1, 1);
+                break;
+            case 4:
+                s.addAmmo(2, 0, 0);
+                break;
+        }
+        // TODO: SOMETHING HERE
+    }
     #endregion
 
     private int NextPlayerId() {
         return PLAYER_ID++;
     }
 
-    private Color NextPlayerColor() {
-        switch (PLAYER_ID) {
+    private Color GetPlayerColor(int id) {
+        switch (id) {
             case 1:
                 return Color.blue;
             case 2:
@@ -144,7 +193,7 @@ public class Server : MonoBehaviour {
     }
 
     void Update() {
-        if (IsGameStarted) {
+        if (state == GameState.Started) {
             bool ended = true;
             foreach (PlayerShip ship in ships) {
                 if (ship.life > 0) {
@@ -152,7 +201,7 @@ public class Server : MonoBehaviour {
                 }
             }
             if (ended) {
-                IsGameEnded = true;
+                state = GameState.Ended;
                 GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
                 foreach (GameObject asteroid in asteroids) {
                     Destroy(asteroid);
@@ -162,7 +211,7 @@ public class Server : MonoBehaviour {
     }
 
     void OnGUI() {
-        if (!IsGameStarted) {
+        if (state == GameState.Unstarted) {
             if (Network.peerType == NetworkPeerType.Disconnected) {
                 GUILayout.Label("Game server Offline");
                 if (GUILayout.Button("Start Game Server")) {
@@ -171,15 +220,16 @@ public class Server : MonoBehaviour {
             } else {
                 if (ships.Count < 1) {
                     GUILayout.Label("Waiting for players to connect");
-                } else if (!IsGameStarted) {
+                } else {
                     GUILayout.Label("Waiting for a player to start game");
                 }
             }
         }
-        if (IsGameEnded) {
+        if (state == GameState.Ended) {
             GUILayout.Label("Game ended.");
             foreach (PlayerShip ship in ships) {
-                GUILayout.Label("Player " + ship.Id + " - " + ship.Score);
+                GUI.contentColor = GetPlayerColor(ship.Id);
+                GUILayout.Label("Player " + ship.Id + " - " + ship.Score + " points");
             }
         }
     }

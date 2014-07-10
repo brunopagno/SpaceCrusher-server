@@ -3,15 +3,6 @@ using System.Collections;
 
 public class PlayerShip : MonoBehaviour {
 
-    public SpriteRenderer dotRenderer;
-
-    //public AudioClip[] shotSound;
-    public Transform bulletSocket;
-    public GameObject bullet;
-
-    public int life = 3;
-    private float time = 0;
-
     private int score = 0;
     public int Score {
         get { return this.score; }
@@ -28,6 +19,23 @@ public class PlayerShip : MonoBehaviour {
         get { return this.player; }
         set { this.player = value; }
     }
+
+    public SpriteRenderer dotRenderer;
+
+    public Collider2D shipCollider;
+
+    public Transform bulletSocket;
+    public GameObject bullet;
+    public GameObject bulletOther;
+
+    public int life = 3;
+    private float time = 0;
+    private float gunTime = 0;
+
+    private int gun2Ammo = 1;
+    private int gun3Ammo = 1;
+    private int specialAmmo = 0;
+    private int gun = 1;
 
     internal void RemoveFromGame() {
         Destroy(gameObject);
@@ -51,12 +59,44 @@ public class PlayerShip : MonoBehaviour {
             }
             return;
         }
-        if (time > 0.33f) {
-            time = 0;
-            GameObject bb = (GameObject)Instantiate(bullet, bulletSocket.transform.position, bullet.transform.rotation);
-            bb.GetComponent<BulletBehaviour>().owner = this;
-            //audio.clip = shotSound[Random.Range(0, 3)];
-            //audio.Play();
+        switch (gun) {
+            case 1:
+                if (time > 0.46f) {
+                    time = 0;
+                    GameObject bb = (GameObject)Instantiate(bullet, bulletSocket.transform.position, bullet.transform.rotation);
+                    bb.GetComponent<BulletBehaviour>().owner = this;
+                }
+                break;
+            case 2:
+                if (time > 0.05f) {
+                    time = 0;
+                    GameObject bb = (GameObject)Instantiate(bullet, bulletSocket.transform.position, bullet.transform.rotation);
+                    bb.GetComponent<BulletBehaviour>().owner = this;
+                }
+                gunTime += Time.deltaTime;
+                if (gunTime > 2f) {
+                    this.SetGun("gun1");
+                    gunTime = 0;
+                }
+                break;
+            case 3:
+                if (time > 0.5f) {
+                    time = 0;
+                    GameObject bba = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position, bullet.transform.rotation);
+                    GameObject bbb = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position + Vector3.right, bullet.transform.rotation);
+                    GameObject bbc = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position + Vector3.left, bullet.transform.rotation);
+                    bba.GetComponent<BulletBehaviour>().owner = this;
+                    bbb.GetComponent<BulletBehaviour>().owner = this;
+                    bbc.GetComponent<BulletBehaviour>().owner = this;
+                }
+                gunTime += Time.deltaTime;
+                if (gunTime > 2f) {
+                    this.SetGun("gun1");
+                    gunTime = 0;
+                }
+                break;
+            case 4:
+                break;
         }
     }
 
@@ -71,5 +111,54 @@ public class PlayerShip : MonoBehaviour {
         GameObject server = GameObject.Find("Server");
         this.life--;
         server.GetComponent<Server>().SetLife(Id + ":" + life.ToString());
+    }
+
+    public void SetGun(string gun) {
+        if (gun.Equals("gun1")) {
+            this.gun = 1;
+        } else if (gun.Equals("gun2")) {
+            gun2Ammo--;
+            if (gun2Ammo < 0) {
+                gun2Ammo = 0;
+                return;
+            }
+            this.gun = 2;
+            GameObject server = GameObject.Find("Server");
+            server.GetComponent<Server>().SetBulletsGun2("" + Id + ":" + gun2Ammo);
+        } else if (gun.Equals("gun3")) {
+            gun3Ammo--;
+            if (gun3Ammo < 0) {
+                gun3Ammo = 0;
+                return;
+            }
+            this.gun = 3;
+            GameObject server = GameObject.Find("Server");
+            server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
+        }
+
+        if (gun.Equals("gunSpecial")) {
+            specialAmmo--;
+            if (specialAmmo < 0) {
+                specialAmmo = 0;
+                return;
+            }
+            this.gun = 4;
+            GameObject server = GameObject.Find("Server");
+            specialAmmo--;
+            server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
+            shipCollider.enabled = false;
+        } else {
+            shipCollider.enabled = true;
+        }
+    }
+
+    public void addAmmo(int p1, int p2, int p3) {
+        GameObject server = GameObject.Find("Server");
+        gun2Ammo += p1;
+        gun3Ammo += p2;
+        specialAmmo += p3;
+        server.GetComponent<Server>().SetBulletsGun2("" + Id + ":" + gun2Ammo);
+        server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
+        server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
     }
 }
