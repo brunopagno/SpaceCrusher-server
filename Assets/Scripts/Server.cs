@@ -268,7 +268,7 @@ public class Server : MonoBehaviour {
     }
 
     void Update() {
-        if (state == GameState.Started) {
+        if (state == GameState.Started || state == GameState.Special) {
             extraTimer -= Time.deltaTime;
             if (extraTimer <= 0) {
                 extraTimer = Random.Range(8f, 15f);
