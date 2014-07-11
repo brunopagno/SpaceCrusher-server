@@ -98,7 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSpeed: 8
   explosion: {fileID: 19800000, guid: df25814a628702a4eb6e766087621960, type: 2}
-  owner: {fileID: 0}
+  theRenderer: {fileID: 21200000}
 --- !u!212 &21200000
 SpriteRenderer:
   m_ObjectHideFlags: 1

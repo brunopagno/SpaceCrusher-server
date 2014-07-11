@@ -25,7 +25,7 @@ public class AsteroidBehaviour : MonoBehaviour {
             ResetEnemyPosition();
         }
         if (other.tag == "Bullet") {
-            other.gameObject.GetComponent<BulletBehaviour>().owner.HitScore();
+            other.gameObject.GetComponent<BulletBehaviour>().Owner.HitScore();
             Instantiate(explosion, other.gameObject.transform.position, other.gameObject.transform.rotation);
             Destroy(other.gameObject);
             ResetEnemyPosition();

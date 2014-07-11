@@ -24,9 +24,9 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 400002}
-  - 114: {fileID: 11400000}
   - 50: {fileID: 5000000}
   - 60: {fileID: 6000000}
+  - 114: {fileID: 11400000}
   m_Layer: 0
   m_Name: Special
   m_TagString: Special
@@ -82,7 +82,7 @@ PolygonCollider2D:
   m_GameObject: {fileID: 100002}
   m_Enabled: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Poly:
     m_Paths:
     - - {x: -.576914132, y: .333423018}
@@ -100,12 +100,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 100002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d5b3c080c0ce98418eb875cd9bfa346, type: 3}
+  m_Script: {fileID: 11500000, guid: 925f46dd2bfa96e4dae55dc24daaf769, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  asteroidSpeed: 1
+  speed: 3.61999989
   explosion: {fileID: 0}
-  dieOnCollide: 1
+  something: 0
 --- !u!212 &21200000
 SpriteRenderer:
   m_ObjectHideFlags: 1

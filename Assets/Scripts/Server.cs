@@ -20,12 +20,12 @@ public class Server : MonoBehaviour {
     private GameState state;
     private bool theAsteroidsAreThere = false;
 
-    public string difficulty;
+    public string difficulty = "1";
 
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
 
-    private float gameTime = 10;
+    private float gameTime = 120;
     private float extraTimer = 12.8f;
 
     private float meteorRushTime = 0;
@@ -263,7 +263,10 @@ public class Server : MonoBehaviour {
 
         if (!theAsteroidsAreThere) {
             theAsteroidsAreThere = true;
-            int amount = int.Parse(difficulty);
+            int amount = 1;
+            if (!int.TryParse(difficulty, out amount)) {
+                amount = 1;
+            }
             amount *= 5;
             for (int i = 0; i < amount; i++) {
                 Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);

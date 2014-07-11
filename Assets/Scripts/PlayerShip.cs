@@ -20,6 +20,7 @@ public class PlayerShip : MonoBehaviour {
         set { this.player = value; }
     }
 
+    private Color color;
     public SpriteRenderer dotRenderer;
 
     public Collider2D shipCollider;
@@ -69,14 +70,14 @@ public class PlayerShip : MonoBehaviour {
                 if (time > 0.46f) {
                     time = 0;
                     GameObject bb = (GameObject)Instantiate(bullet, bulletSocket.transform.position, bullet.transform.rotation);
-                    bb.GetComponent<BulletBehaviour>().owner = this;
+                    bb.GetComponent<BulletBehaviour>().AssignOwner(this);
                 }
                 break;
             case 2:
                 if (time > 0.05f) {
                     time = 0;
                     GameObject bb = (GameObject)Instantiate(bullet, bulletSocket.transform.position, bullet.transform.rotation);
-                    bb.GetComponent<BulletBehaviour>().owner = this;
+                    bb.GetComponent<BulletBehaviour>().AssignOwner(this);
                 }
                 gunTime += Time.deltaTime;
                 if (gunTime > 2f) {
@@ -90,9 +91,9 @@ public class PlayerShip : MonoBehaviour {
                     GameObject bba = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position, bullet.transform.rotation);
                     GameObject bbb = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position + Vector3.right, bullet.transform.rotation);
                     GameObject bbc = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position + Vector3.left, bullet.transform.rotation);
-                    bba.GetComponent<BulletBehaviour>().owner = this;
-                    bbb.GetComponent<BulletBehaviour>().owner = this;
-                    bbc.GetComponent<BulletBehaviour>().owner = this;
+                    bba.GetComponent<BulletBehaviour>().AssignOwner(this);
+                    bbb.GetComponent<BulletBehaviour>().AssignOwner(this);
+                    bbc.GetComponent<BulletBehaviour>().AssignOwner(this);
                 }
                 gunTime += Time.deltaTime;
                 if (gunTime > 2f) {
@@ -154,9 +155,24 @@ public class PlayerShip : MonoBehaviour {
             specialAmmo--;
             server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
             shipCollider.enabled = false;
+            this.color = this.dotRenderer.color;
+            this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
         } else {
+            this.dotRenderer.color = this.color;
             shipCollider.enabled = true;
         }
+    }
+
+    public void CollectLife() {
+        GameObject server = GameObject.Find("Server");
+        life++;
+        server.GetComponent<Server>().SetLife("" + Id + ":" + life);
+    }
+
+    public void CollectSpecial() {
+        GameObject server = GameObject.Find("Server");
+        specialAmmo++;
+        server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
     }
 
     public void RouletteResult(int ammo2, int ammo3, int lifep) {
