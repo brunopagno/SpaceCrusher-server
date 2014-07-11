@@ -40,6 +40,10 @@ public class PlayerShip : MonoBehaviour {
     
     private bool endedGame;
 
+    void Start() {
+        this.color = dotRenderer.color;
+    }
+
     internal void RemoveFromGame() {
         Destroy(gameObject);
     }
