@@ -26,7 +26,7 @@ public class Server : MonoBehaviour {
     private const string TYPE_NAME = "IHA-SPG0";
     private const string GAME_NAME = "SpaceCrusher Game";
 
-    private float gameTime = 120;
+    private float gameTime = 10;
     private float extraTimer = 12.8f;
 
     private float meteorRushTime = 0;
@@ -351,6 +351,7 @@ public class Server : MonoBehaviour {
     }
 
     private void EndGame() {
+        SetLog();
         state = GameState.Ended;
         GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject asteroid in asteroids) {
@@ -359,13 +360,12 @@ public class Server : MonoBehaviour {
         foreach (PlayerShip ship in ships) {
             ship.EndedGame();
         }
-        SetLog();
     }
 
     private void SetLog() {
-        string fileName = "results_" + gameIdentifier + "_difficulty_" + difficulty + ".ofmdt";
+        string fileName = "results_" + gameIdentifier + "_difficulty_" + difficulty + ".txt";
         if (File.Exists(fileName)) {
-            fileName = "results_desambiguation_" + gameIdentifier + ".ofmdt";
+            fileName = "results_desambiguation_" + gameIdentifier + ".txt";
         }
         StreamWriter writer = File.CreateText(fileName);
         writer.WriteLine("id,score,remaining_life,remaining_ammo_2,remaining_ammo_3,remaining_special,times_gun2,times_gun3,times_special," +
@@ -389,10 +389,7 @@ public class Server : MonoBehaviour {
                          ship.life_sent);
         }
 
-    //    public int gun2_sent;
-    //public int gun3_sent;
-    //public int life_sent;
-        writer.WriteLine("");
+        writer.WriteLine("---");
         writer.WriteLine("TotalRemainingTime:" + gameTime);
         writer.WriteLine("Rushes:" + rushes);
 
