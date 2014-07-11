@@ -370,24 +370,40 @@ public class Server : MonoBehaviour {
         StreamWriter writer = File.CreateText(fileName);
         writer.WriteLine("id,score,remaining_life,remaining_ammo_2,remaining_ammo_3,remaining_special,times_gun2,times_gun3,times_special," +
                          "times_hit,life_collected,special_collected,roulette_rounds,gun2_sent,gun3_sent,life_sent");
-        foreach (PlayerShip ship in ships) {
-            writer.Write(ship.Id + "," +
-                         ship.Score + "," +
-                         ship.life + "," +
-                         ship.gun2Ammo + "," +
-                         ship.gun3Ammo + "," +
-                         ship.specialAmmo + "," +
-                         ship.timesGun2 + "," +
-                         ship.timesGun3 + "," +
-                         ship.timesSpecial + "," +
-                         ship.timesHit + "," +
-                         ship.lifeCollected + "," +
-                         ship.specialCollected + "," +
-                         ship.rouletteRounds + "," +
-                         ship.gun2_sent + "," +
-                         ship.gun3_sent + "," +
-                         ship.life_sent);
-        }
+        PlayerShip s = GetShip(1);
+        PlayerShip ss = GetOtherShip(1);
+        writer.Write(s.Id + "," +
+                     s.Score + "," +
+                     s.life + "," +
+                     s.gun2Ammo + "," +
+                     s.gun3Ammo + "," +
+                     s.specialAmmo + "," +
+                     s.timesGun2 + "," +
+                     s.timesGun3 + "," +
+                     s.timesSpecial + "," +
+                     s.timesHit + "," +
+                     s.lifeCollected + "," +
+                     s.specialCollected + "," +
+                     s.rouletteRounds + "," +
+                     s.gun2_sent + "," +
+                     s.gun3_sent + "," +
+                     s.life_sent);
+        writer.Write(ss.Id + "," +
+                     ss.Score + "," +
+                     ss.life + "," +
+                     ss.gun2Ammo + "," +
+                     ss.gun3Ammo + "," +
+                     ss.specialAmmo + "," +
+                     ss.timesGun2 + "," +
+                     ss.timesGun3 + "," +
+                     ss.timesSpecial + "," +
+                     ss.timesHit + "," +
+                     ss.lifeCollected + "," +
+                     ss.specialCollected + "," +
+                     ss.rouletteRounds + "," +
+                     ss.gun2_sent + "," +
+                     ss.gun3_sent + "," +
+                     ss.life_sent);
 
         writer.WriteLine("---");
         writer.WriteLine("TotalRemainingTime:" + gameTime);
