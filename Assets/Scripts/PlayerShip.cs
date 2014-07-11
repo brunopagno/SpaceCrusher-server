@@ -3,15 +3,15 @@ using System.Collections;
 
 public class PlayerShip : MonoBehaviour {
 
-    private int score = 0;
-    public int Score {
-        get { return this.score; }
-    }
-
     protected int id;
     public int Id {
         get { return this.id; }
         set { this.id = value; }
+    }
+
+    private int score = 0;
+    public int Score {
+        get { return this.score; }
     }
 
     protected NetworkPlayer player;
@@ -33,12 +33,23 @@ public class PlayerShip : MonoBehaviour {
     private float time = 0;
     private float gunTime = 0;
 
-    private int gun2Ammo = 1;
-    private int gun3Ammo = 1;
-    private int specialAmmo = 0;
+    public int gun2Ammo = 1;
+    public int gun3Ammo = 1;
+    public int specialAmmo = 0;
     private int gun = 1;
     
     private bool endedGame;
+
+    public int timesGun2;
+    public int timesGun3;
+    public int timesSpecial;
+    public int timesHit;
+    public int lifeCollected;
+    public int specialCollected;
+    public int rouletteRounds;
+    public int gun2_sent;
+    public int gun3_sent;
+    public int life_sent;
 
     void Start() {
         this.color = dotRenderer.color;
@@ -120,6 +131,7 @@ public class PlayerShip : MonoBehaviour {
         if (life == 0) {
             return;
         }
+        timesHit++;
         GameObject server = GameObject.Find("Server");
         this.life--;
         server.GetComponent<Server>().SetLife(Id + ":" + life.ToString());
@@ -129,6 +141,7 @@ public class PlayerShip : MonoBehaviour {
         if (gun.Equals("gun1")) {
             this.gun = 1;
         } else if (gun.Equals("gun2")) {
+            timesGun2++;
             gun2Ammo--;
             if (gun2Ammo < 0) {
                 gun2Ammo = 0;
@@ -138,6 +151,7 @@ public class PlayerShip : MonoBehaviour {
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsGun2("" + Id + ":" + gun2Ammo);
         } else if (gun.Equals("gun3")) {
+            timesGun3++;
             gun3Ammo--;
             if (gun3Ammo < 0) {
                 gun3Ammo = 0;
@@ -149,6 +163,7 @@ public class PlayerShip : MonoBehaviour {
         }
 
         if (gun.Equals("gunSpecial")) {
+            timesSpecial++;
             specialAmmo--;
             if (specialAmmo < 0) {
                 specialAmmo = 0;
@@ -156,7 +171,6 @@ public class PlayerShip : MonoBehaviour {
             }
             this.gun = 4;
             GameObject server = GameObject.Find("Server");
-            specialAmmo--;
             server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
             shipCollider.enabled = false;
             this.color = this.dotRenderer.color;
@@ -168,18 +182,21 @@ public class PlayerShip : MonoBehaviour {
     }
 
     public void CollectLife() {
+        lifeCollected++;
         GameObject server = GameObject.Find("Server");
         life++;
         server.GetComponent<Server>().SetLife("" + Id + ":" + life);
     }
 
     public void CollectSpecial() {
+        specialCollected++;
         GameObject server = GameObject.Find("Server");
         specialAmmo++;
         server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
     }
 
     public void RouletteResult(int ammo2, int ammo3, int lifep) {
+        rouletteRounds++;
         GameObject server = GameObject.Find("Server");
         gun2Ammo += ammo2;
         gun3Ammo += ammo3;

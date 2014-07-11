@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class Server : MonoBehaviour {
@@ -31,6 +32,9 @@ public class Server : MonoBehaviour {
     private float meteorRushTime = 0;
     private bool meteorRush = false;
     private List<GameObject> rushedMeteors = new List<GameObject>();
+
+    private string gameIdentifier = "";
+    private int rushes;
 
     void StartServer() {
         Network.InitializeServer(maxConnections, port, false);
@@ -85,7 +89,17 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
+    void SetGun2WithSound(string message) {
+        networkView.RPC("SetBulletsGun2", RPCMode.Others, message);
+    }
+
+    [RPC]
     public void SetBulletsGun3(string message) {
+        networkView.RPC("SetBulletsGun3", RPCMode.Others, message);
+    }
+
+    [RPC]
+    void SetGun3WithSound(string message) {
         networkView.RPC("SetBulletsGun3", RPCMode.Others, message);
     }
 
@@ -103,19 +117,61 @@ public class Server : MonoBehaviour {
     public void SetLife(string message) {
         networkView.RPC("SetLife", RPCMode.Others, message);
     }
+
+    [RPC]
+    void SetLifeWithSound(string message) {
+        networkView.RPC("SetLife", RPCMode.Others, message);
+    }
     #endregion
 
     #region RPCIn
+    [RPC]
+    void PassarArminhaProAmiguinho(string message) {
+        string[] d = message.Split(':');
+        PlayerShip s = GetShip(int.Parse(d[0]));
+        PlayerShip ss = GetOtherShip(s.Id);
+        if (d[1].Equals("gun2")) {
+            s.gun2Ammo--;
+            ss.gun2Ammo++;
+            SetBulletsGun2(s.Id + ":" + s.gun2Ammo);
+            SetGun2WithSound(ss.Id + ":" + ss.gun2Ammo);
+            s.gun2_sent++;
+        } else {
+            s.gun3Ammo--;
+            ss.gun3Ammo++;
+            SetBulletsGun3(s.Id + ":" + s.gun3Ammo);
+            SetGun3WithSound(ss.Id + ":" + ss.gun3Ammo);
+            s.gun3_sent++;
+        }
+    }
+
+    [RPC]
+    void PassarVidaProAmiguinho(string message) {
+        string[] d = message.Split(':');
+        PlayerShip s = GetShip(int.Parse(d[0]));
+        PlayerShip ss = GetOtherShip(s.Id);
+        if (s.life > 1) {
+            s.life--;
+            ss.life++;
+            SetLife(s.Id + ":" + s.life);
+            SetLifeWithSound(ss.Id + ":" + ss.life);
+            s.life_sent++;
+        }
+    }
+
     [RPC]
     void ChangeGun(string message) {
         string[] d = message.Split(':');
         PlayerShip s = GetShip(int.Parse(d[0]));
         if (d[1].Equals("gunSpecial")) {
-            state = GameState.Special;
+            if (s.specialAmmo > 0) {
+                state = GameState.Special;
+                s.SetGun(d[1]);
+            }
         } else {
             state = GameState.Started;
+            s.SetGun(d[1]);
         }
-        s.SetGun(d[1]);
     }
 
     [RPC]
@@ -162,6 +218,12 @@ public class Server : MonoBehaviour {
 
     [RPC]
     public void SendChangedGun(string gun) { }
+
+    [RPC]
+    public void SendGun(string _gun) { }
+
+    [RPC]
+    public void SendLife() { }
     #endregion
 
     private int NextPlayerId() {
@@ -190,6 +252,15 @@ public class Server : MonoBehaviour {
     private PlayerShip GetShip(int id) {
         foreach (PlayerShip ship in ships) {
             if (ship.Id == id) {
+                return ship;
+            }
+        }
+        return null;
+    }
+
+    private PlayerShip GetOtherShip(int id) {
+        foreach (PlayerShip ship in ships) {
+            if (ship.Id != id) {
                 return ship;
             }
         }
@@ -244,6 +315,7 @@ public class Server : MonoBehaviour {
     }
 
     private void StartRush() {
+        rushes++;
         meteorRush = true;
         for (int i = 0; i < 4; i++) {
             rushedMeteors.Add((GameObject)Instantiate(asteroideePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity));
@@ -287,11 +359,52 @@ public class Server : MonoBehaviour {
         foreach (PlayerShip ship in ships) {
             ship.EndedGame();
         }
+        SetLog();
+    }
+
+    private void SetLog() {
+        string fileName = "results_" + gameIdentifier + "_difficulty_" + difficulty + ".ofmdt";
+        if (File.Exists(fileName)) {
+            fileName = "results_desambiguation_" + gameIdentifier + ".ofmdt";
+        }
+        StreamWriter writer = File.CreateText(fileName);
+        writer.WriteLine("id,score,remaining_life,remaining_ammo_2,remaining_ammo_3,remaining_special,times_gun2,times_gun3,times_special," +
+                         "times_hit,life_collected,special_collected,roulette_rounds,gun2_sent,gun3_sent,life_sent");
+        foreach (PlayerShip ship in ships) {
+            writer.Write(ship.Id + "," +
+                         ship.Score + "," +
+                         ship.life + "," +
+                         ship.gun2Ammo + "," +
+                         ship.gun3Ammo + "," +
+                         ship.specialAmmo + "," +
+                         ship.timesGun2 + "," +
+                         ship.timesGun3 + "," +
+                         ship.timesSpecial + "," +
+                         ship.timesHit + "," +
+                         ship.lifeCollected + "," +
+                         ship.specialCollected + "," +
+                         ship.rouletteRounds + "," +
+                         ship.gun2_sent + "," +
+                         ship.gun3_sent + "," +
+                         ship.life_sent);
+        }
+
+    //    public int gun2_sent;
+    //public int gun3_sent;
+    //public int life_sent;
+        writer.WriteLine("");
+        writer.WriteLine("TotalRemainingTime:" + gameTime);
+        writer.WriteLine("Rushes:" + rushes);
+
+        writer.Flush();
+        writer.Close();
     }
 
     void OnGUI() {
         if (state == GameState.Unstarted) {
             if (Network.peerType == NetworkPeerType.Disconnected) {
+                GUILayout.Label("GameIdentifier:");
+                gameIdentifier = GUILayout.TextField(gameIdentifier);
                 GUILayout.Label("Game server Offline");
                 if (GUILayout.Button("Start Game Server")) {
                     StartServer();
@@ -313,7 +426,7 @@ public class Server : MonoBehaviour {
             }
         }
         if (state == GameState.Ended) {
-            GUILayout.Label("Game ended.");
+            GUILayout.Label("Game [" + gameIdentifier + "] ended.");
             foreach (PlayerShip ship in ships) {
                 GUI.contentColor = GetPlayerColor(ship.Id);
                 GUILayout.Label("Player " + ship.Id + ": " + ship.Score + " points");
