@@ -57,7 +57,7 @@ public class Server : MonoBehaviour {
             ship.Id = NextPlayerId();
             ship.Player = player;
             ships.Add(ship);
-            networkView.RPC("RPCIn", player, "PID:" + ship.Id);
+            RPCConnect("PID:" + ship.Id);
         }
     }
 
@@ -73,6 +73,11 @@ public class Server : MonoBehaviour {
     }
 
     #region RPCOut
+
+    [RPC]
+    void RPCConnect(string message) {
+        networkView.RPC("RPCConnect", RPCMode.Others, message);
+    }
 
     [RPC]
     public void SetBulletsGun2(string message) {
