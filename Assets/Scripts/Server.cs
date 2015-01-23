@@ -73,15 +73,6 @@ public class Server : MonoBehaviour {
     }
 
     #region RPCOut
-    [RPC]
-    public void RPCOut(string info) {
-        networkView.RPC("RPCIn", RPCMode.Others, info);
-    }
-
-    [RPC]
-    public void SetBulletsGun1(string message) {
-        networkView.RPC("SetBulletsGun1", RPCMode.Others, message);
-    }
 
     [RPC]
     public void SetBulletsGun2(string message) {
@@ -90,7 +81,7 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void SetGun2WithSound(string message) {
-        networkView.RPC("SetBulletsGun2", RPCMode.Others, message);
+        networkView.RPC("SetGun2WithSound", RPCMode.Others, message);
     }
 
     [RPC]
@@ -100,7 +91,7 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void SetGun3WithSound(string message) {
-        networkView.RPC("SetBulletsGun3", RPCMode.Others, message);
+        networkView.RPC("SetGun3WithSound", RPCMode.Others, message);
     }
 
     [RPC]
@@ -120,47 +111,23 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void SetLifeWithSound(string message) {
-        networkView.RPC("SetLife", RPCMode.Others, message);
+        networkView.RPC("SetLifeWithSound", RPCMode.Others, message);
     }
+
     #endregion
 
     #region RPCIn
+
     [RPC]
-    void PassarArminhaProAmiguinho(string message) {
+    void SyncPosition(string message) {
         string[] d = message.Split(':');
         PlayerShip s = GetShip(int.Parse(d[0]));
-        PlayerShip ss = GetOtherShip(s.Id);
-        if (d[1].Equals("gun2")) {
-            s.gun2Ammo--;
-            ss.gun2Ammo++;
-            SetBulletsGun2(s.Id + ":" + s.gun2Ammo);
-            SetGun2WithSound(ss.Id + ":" + ss.gun2Ammo);
-            s.gun2_sent++;
-        } else {
-            s.gun3Ammo--;
-            ss.gun3Ammo++;
-            SetBulletsGun3(s.Id + ":" + s.gun3Ammo);
-            SetGun3WithSound(ss.Id + ":" + ss.gun3Ammo);
-            s.gun3_sent++;
-        }
+        s.MoveTo(float.Parse(d[1]));
     }
 
     [RPC]
-    void PassarVidaProAmiguinho(string message) {
-        string[] d = message.Split(':');
-        PlayerShip s = GetShip(int.Parse(d[0]));
-        PlayerShip ss = GetOtherShip(s.Id);
-        if (s.life > 1) {
-            s.life--;
-            ss.life++;
-            SetLife(s.Id + ":" + s.life);
-            SetLifeWithSound(ss.Id + ":" + ss.life);
-            s.life_sent++;
-        }
-    }
-
-    [RPC]
-    void ChangeGun(string message) {
+    void SyncChangedItem(string message) {
+        // TODO: Adapt for gun, lightning and life
         string[] d = message.Split(':');
         PlayerShip s = GetShip(int.Parse(d[0]));
         if (d[1].Equals("gunSpecial")) {
@@ -175,55 +142,10 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
-    void MovePlayer(string message) {
-        string[] d = message.Split(':');
-        PlayerShip s = GetShip(int.Parse(d[0]));
-        s.MoveTo(float.Parse(d[1]));
-    }
-
-    [RPC]
-    void RPCIn(string info) {
-        Debug.Log("Received message -> " + info);
-    }
-
-    [RPC]
     void RPCStart(string nothing) {
         StartGame();
     }
 
-    [RPC]
-    void RouletResult(string message) {
-        string[] d = message.Split(':');
-        PlayerShip s = GetShip(int.Parse(d[0]));
-
-        int result = int.Parse(d[1]);
-        switch (result) {
-            case 1:
-                s.RouletteResult(0, 0, 1);
-                break;
-            case 2:
-                s.RouletteResult(1, 0, 0);
-                break;
-            case 3:
-                s.RouletteResult(0, 1, 0);
-                break;
-            case 4:
-                StartRush();
-                break;
-        }
-    }
-
-    [RPC]
-    public void SendPosition(string position) { }
-
-    [RPC]
-    public void SendChangedGun(string gun) { }
-
-    [RPC]
-    public void SendGun(string _gun) { }
-
-    [RPC]
-    public void SendLife() { }
     #endregion
 
     private int NextPlayerId() {
