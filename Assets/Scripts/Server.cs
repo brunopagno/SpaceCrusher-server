@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class Server : MonoBehaviour {
@@ -29,11 +29,7 @@ public class Server : MonoBehaviour {
     private float gameTime = 10;
     private float extraTimer = 12.8f;
 
-    private float meteorRushTime = 0;
-    private bool meteorRush = false;
-    private List<GameObject> rushedMeteors = new List<GameObject>();
-
-    private string gameIdentifier = "";
+    private string gameIdentifier = "1";
     private int rushes;
 
     void StartServer() {
@@ -125,9 +121,12 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void SyncPosition(string message) {
-        string[] d = message.Split(':');
-        PlayerShip s = GetShip(int.Parse(d[0]));
-        s.MoveTo(float.Parse(d[1]));
+        Match m = Regex.Match(message, "\\d*:\\d*");
+        if (m.Success) {
+            string[] d = message.Split(':');
+            PlayerShip s = GetShip(int.Parse(d[0]));
+            s.MoveTo(float.Parse(d[1]));
+        }
     }
 
     [RPC]
@@ -207,14 +206,6 @@ public class Server : MonoBehaviour {
                 }
             }
 
-            if (meteorRush) {
-                meteorRushTime += Time.deltaTime;
-                if (meteorRushTime > 5) {
-                    meteorRush = false;
-                    meteorRushTime = 0;
-                    EndRush();
-                }
-            }
             bool ended = true;
             foreach (PlayerShip ship in ships) {
                 if (ship.life > 0) {
@@ -230,35 +221,10 @@ public class Server : MonoBehaviour {
                 EndGame();
             }
         }
-
-        // FOR DEBUG ONLY
-        //if (Input.GetKeyDown(KeyCode.Space)) {
-        //    if (meteorRush) {
-        //        EndRush();
-        //    } else {
-        //        StartRush();
-        //    }
-        //}
-    }
-
-    private void StartRush() {
-        rushes++;
-        meteorRush = true;
-        for (int i = 0; i < 4; i++) {
-            rushedMeteors.Add((GameObject)Instantiate(asteroideePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity));
-        }
-    }
-
-    private void EndRush() {
-        foreach (GameObject rushy in rushedMeteors) {
-            Destroy(rushy);
-        }
-        meteorRush = false;
     }
 
     private void StartGame() {
         state = GameState.Started;
-        networkView.RPC("RPCStart", RPCMode.Others, string.Empty);
 
         if (!theAsteroidsAreThere) {
             theAsteroidsAreThere = true;
@@ -278,7 +244,6 @@ public class Server : MonoBehaviour {
     }
 
     private void EndGame() {
-        SetLog();
         state = GameState.Ended;
         GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject asteroid in asteroids) {
@@ -287,57 +252,6 @@ public class Server : MonoBehaviour {
         foreach (PlayerShip ship in ships) {
             ship.EndedGame();
         }
-    }
-
-    private void SetLog() {
-        string fileName = "results_" + gameIdentifier + "_difficulty_" + difficulty + ".txt";
-        if (File.Exists(fileName)) {
-            fileName = "results_desambiguation_" + gameIdentifier + ".txt";
-        }
-        StreamWriter writer = File.CreateText(fileName);
-        writer.WriteLine("id,score,remaining_life,remaining_ammo_2,remaining_ammo_3,remaining_special,times_gun2,times_gun3,times_special," +
-                         "times_hit,life_collected,special_collected,roulette_rounds,gun2_sent,gun3_sent,life_sent");
-        PlayerShip s = GetShip(1);
-        PlayerShip ss = GetOtherShip(1);
-        writer.Write(s.Id + "," +
-                     s.Score + "," +
-                     s.life + "," +
-                     s.gun2Ammo + "," +
-                     s.gun3Ammo + "," +
-                     s.specialAmmo + "," +
-                     s.timesGun2 + "," +
-                     s.timesGun3 + "," +
-                     s.timesSpecial + "," +
-                     s.timesHit + "," +
-                     s.lifeCollected + "," +
-                     s.specialCollected + "," +
-                     s.rouletteRounds + "," +
-                     s.gun2_sent + "," +
-                     s.gun3_sent + "," +
-                     s.life_sent);
-        writer.Write(ss.Id + "," +
-                     ss.Score + "," +
-                     ss.life + "," +
-                     ss.gun2Ammo + "," +
-                     ss.gun3Ammo + "," +
-                     ss.specialAmmo + "," +
-                     ss.timesGun2 + "," +
-                     ss.timesGun3 + "," +
-                     ss.timesSpecial + "," +
-                     ss.timesHit + "," +
-                     ss.lifeCollected + "," +
-                     ss.specialCollected + "," +
-                     ss.rouletteRounds + "," +
-                     ss.gun2_sent + "," +
-                     ss.gun3_sent + "," +
-                     ss.life_sent);
-
-        writer.WriteLine("---");
-        writer.WriteLine("TotalRemainingTime:" + gameTime);
-        writer.WriteLine("Rushes:" + rushes);
-
-        writer.Flush();
-        writer.Close();
     }
 
     void OnGUI() {
@@ -361,9 +275,6 @@ public class Server : MonoBehaviour {
         }
         if (state == GameState.Started || state == GameState.Special) {
             GUILayout.Label("Seconds remaining: " + gameTime.ToString("N"));
-            if (meteorRush) {
-                GUILayout.Label("IN RUSH");
-            }
         }
         if (state == GameState.Ended) {
             GUILayout.Label("Game [" + gameIdentifier + "] ended.");
