@@ -80,18 +80,8 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
-    void SetGun2WithSound(string message) {
-        networkView.RPC("SetGun2WithSound", RPCMode.Others, message);
-    }
-
-    [RPC]
     public void SetBulletsGun3(string message) {
         networkView.RPC("SetBulletsGun3", RPCMode.Others, message);
-    }
-
-    [RPC]
-    void SetGun3WithSound(string message) {
-        networkView.RPC("SetGun3WithSound", RPCMode.Others, message);
     }
 
     [RPC]
@@ -107,11 +97,6 @@ public class Server : MonoBehaviour {
     [RPC]
     public void SetLife(string message) {
         networkView.RPC("SetLife", RPCMode.Others, message);
-    }
-
-    [RPC]
-    void SetLifeWithSound(string message) {
-        networkView.RPC("SetLifeWithSound", RPCMode.Others, message);
     }
 
     #endregion
@@ -130,17 +115,9 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void SyncChangedItem(string message) {
-        // TODO: Adapt for gun, lightning and life
         string[] d = message.Split(':');
         PlayerShip s = GetShip(int.Parse(d[0]));
-        if (d[1].Equals("gunSpecial")) {
-            if (s.specialAmmo > 0) {
-                s.SetGun(d[1]);
-            }
-        } else {
-            state = GameState.Started;
-            s.SetGun(d[1]);
-        }
+        s.SetGun(d[1]);
     }
 
     [RPC]
@@ -238,6 +215,9 @@ public class Server : MonoBehaviour {
 
         foreach (PlayerShip ship in ships) {
             SetLife(ship.Id + ":" + ship.life);
+            SetBulletsGun2(ship.Id + ":" + ship.gun2Ammo);
+            SetBulletsGun3(ship.Id + ":" + ship.gun3Ammo);
+            SetBulletsSpecial(ship.Id + ":" + ship.specialAmmo);
         }
     }
 
