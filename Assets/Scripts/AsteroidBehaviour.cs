@@ -7,7 +7,7 @@ public class AsteroidBehaviour : MonoBehaviour {
     public ParticleSystem explosion;
 
     void Start() {
-        this.asteroidSpeed = Random.Range(3.5f, 6.5f);
+        this.asteroidSpeed = Random.Range(3f, 5.5f);
     }
 
     void Update() {
