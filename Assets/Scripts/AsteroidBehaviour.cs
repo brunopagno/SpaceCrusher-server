@@ -3,18 +3,17 @@ using System.Collections;
 
 public class AsteroidBehaviour : MonoBehaviour {
 
-    public float asteroidSpeed = 1;
+    private float asteroidSpeed;
     public ParticleSystem explosion;
-    public bool dieOnCollide = false;
 
-    //public AudioClip[] explosionSound;
-
-    void Start() { }
+    void Start() {
+        this.asteroidSpeed = Random.Range(3.5f, 6.5f);
+    }
 
     void Update() {
         transform.Translate(Vector3.down * Time.deltaTime * asteroidSpeed);
         if (transform.position.y <= -12) {
-            ResetEnemyPosition();
+            RemoveAsteroid();
         }
     }
 
@@ -22,24 +21,24 @@ public class AsteroidBehaviour : MonoBehaviour {
         if (other.tag == "Player") {
             Instantiate(explosion, transform.position, transform.rotation);
             other.gameObject.GetComponent<PlayerShip>().TakeHit();
-            ResetEnemyPosition();
+            RemoveAsteroid();
         }
         if (other.tag == "Bullet") {
             other.gameObject.GetComponent<BulletBehaviour>().Owner.HitScore();
             Instantiate(explosion, other.gameObject.transform.position, other.gameObject.transform.rotation);
             Destroy(other.gameObject);
-            ResetEnemyPosition();
+            RemoveAsteroid();
         }
     }
 
-    public void ResetEnemyPosition() {
-        if (dieOnCollide) {
-            Destroy(gameObject);
-        }
+    public void RemoveAsteroid() {
         if (transform.position.y > -1) {
-            //audio.clip = explosionSound [Random.Range (0, 2)];
+            // TODO
+            //audio.clip = explosionSound
             //audio.Play ();
         }
-        transform.position = new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0);
+        Server server = GameObject.Find("Server").GetComponent<Server>();
+        server.CreateAsteroid();
+        Destroy(gameObject);
     }
 }

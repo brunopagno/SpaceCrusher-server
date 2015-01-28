@@ -4,7 +4,6 @@ using System.Collections;
 public class BulletBehaviour : MonoBehaviour {
 
     public float bulletSpeed = 8;
-    public ParticleSystem explosion;
     public SpriteRenderer theRenderer;
     private PlayerShip owner;
     public PlayerShip Owner {

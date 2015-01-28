@@ -1201,7 +1201,7 @@ GameObject:
   - 148: {fileID: 798284554}
   m_Layer: 0
   m_Name: Server
-  m_TagString: Untagged
+  m_TagString: Server
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1233,6 +1233,8 @@ MonoBehaviour:
   maxConnections: 4
   shipPrefab: {fileID: 11400002, guid: 2ce3abd6687464249958dabf2d36cba4, type: 2}
   asteroidPrefab: {fileID: 100002, guid: 1d3e31935bc0907478c463a517d6483d, type: 2}
+  asteroidMediumPrefab: {fileID: 153704, guid: a3b7d1088e4ddc44e8c881815c072ca3, type: 2}
+  asteroidLittlePrefab: {fileID: 100040, guid: 47c324a8e776d9b4d81e873f39a429ed, type: 2}
   asteroideePrefab: {fileID: 100002, guid: f3689299dc44fbe44a22178a59cdc068, type: 2}
   specialPrefab: {fileID: 100002, guid: fb46c02b348512241abdaa6bbbeac6d5, type: 2}
   lifePrefab: {fileID: 100002, guid: 31d62ea8f39c89d478e943356cfe4cf3, type: 2}

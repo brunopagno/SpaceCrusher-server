@@ -5,13 +5,17 @@ using UnityEngine;
 public class Server : MonoBehaviour {
 
     private enum GameState {
-        Unstarted, Started, Ended, Special
+        Unstarted, Started, Ended
     }
+    private const string TYPE_NAME = "IHA-SPG0";
+    private const string GAME_NAME = "SpaceCrusher Game";
 
     public int port = 32154;
     public int maxConnections = 4;
     public PlayerShip shipPrefab;
     public GameObject asteroidPrefab;
+    public GameObject asteroidMediumPrefab;
+    public GameObject asteroidLittlePrefab;
     public GameObject asteroideePrefab;
     public GameObject specialPrefab;
     public GameObject lifePrefab;
@@ -21,16 +25,11 @@ public class Server : MonoBehaviour {
     private GameState state;
     private bool theAsteroidsAreThere = false;
 
+    private float gameTime = 120;
+    private float itemDropTimer = 12.8f;
+
     public string difficulty = "1";
-
-    private const string TYPE_NAME = "IHA-SPG0";
-    private const string GAME_NAME = "SpaceCrusher Game";
-
-    private float gameTime = 10;
-    private float extraTimer = 12.8f;
-
     private string gameIdentifier = "1";
-    private int rushes;
 
     void StartServer() {
         Network.InitializeServer(maxConnections, port, false);
@@ -136,7 +135,6 @@ public class Server : MonoBehaviour {
         PlayerShip s = GetShip(int.Parse(d[0]));
         if (d[1].Equals("gunSpecial")) {
             if (s.specialAmmo > 0) {
-                state = GameState.Special;
                 s.SetGun(d[1]);
             }
         } else {
@@ -194,10 +192,10 @@ public class Server : MonoBehaviour {
     }
 
     void Update() {
-        if (state == GameState.Started || state == GameState.Special) {
-            extraTimer -= Time.deltaTime;
-            if (extraTimer <= 0) {
-                extraTimer = Random.Range(8f, 15f);
+        if (state == GameState.Started) {
+            itemDropTimer -= Time.deltaTime;
+            if (itemDropTimer <= 0) {
+                itemDropTimer = Random.Range(8f, 15f);
                 int rand = Random.Range(0, 99);
                 if (rand % 2 == 0) {
                     Instantiate(specialPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
@@ -234,7 +232,7 @@ public class Server : MonoBehaviour {
             }
             amount *= 5;
             for (int i = 0; i < amount; i++) {
-                Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+                CreateAsteroid();
             }
         }
 
@@ -251,6 +249,19 @@ public class Server : MonoBehaviour {
         }
         foreach (PlayerShip ship in ships) {
             ship.EndedGame();
+        }
+    }
+
+    public void CreateAsteroid() {
+        float r = Random.Range(0f, 1f);
+        if (r < 0.25f) {
+            Instantiate(asteroidPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+        } else if (r < 0.5f) {
+            Instantiate(asteroidMediumPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+        } else if (r < 0.75f) {
+            Instantiate(asteroidLittlePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+        } else {
+            Instantiate(asteroideePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
         }
     }
 
@@ -273,7 +284,7 @@ public class Server : MonoBehaviour {
                 }
             }
         }
-        if (state == GameState.Started || state == GameState.Special) {
+        if (state == GameState.Started) {
             GUILayout.Label("Seconds remaining: " + gameTime.ToString("N"));
         }
         if (state == GameState.Ended) {
