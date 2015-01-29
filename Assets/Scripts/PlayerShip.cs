@@ -35,16 +35,17 @@ public class PlayerShip : MonoBehaviour {
 
     private ShipState state = ShipState.Normal;
 
-    public int life = 3;
     private float timer = 0;
     private float gunTimer = 0;
     private float bombTimer = -10;
 
+    public int life = 3;
     public int gun2Ammo = 2;
     public int gun3Ammo = 2;
     public int specialAmmo = 0;
-    private int gun = 1;
 
+    private int gun = 1;
+    private float originalGunSpeed;
     public float gunSpeed = 0.46f;
 
     private bool endedGame;
@@ -61,6 +62,7 @@ public class PlayerShip : MonoBehaviour {
 
     void Start() {
         this.color = dotRenderer.color;
+        this.originalGunSpeed = gunSpeed;
     }
 
     internal void RemoveFromGame() {
@@ -151,18 +153,21 @@ public class PlayerShip : MonoBehaviour {
         this.life--;
         server.GetComponent<Server>().SetLife(Id + ":" + life.ToString());
     }
-    
+
     public void HitByBomb() {
         bombTimer = 5;
-        gunSpeed *= 2;
+        originalGunSpeed = gunSpeed;
+        gunSpeed /= 2;
         // TODO add something that shows that the player is slow
-        // TODO send move speed reduction message
+        GameObject server = GameObject.Find("Server");
+        server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "yes");
     }
 
     public void RecoverAfterBomb() {
-        gunSpeed /= 2;
+        gunSpeed = originalGunSpeed;
         // TODO remove something that shows that the player is slow
-        // TODO send move speed recovery message
+        GameObject server = GameObject.Find("Server");
+        server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "no");
     }
 
     public void SetGun(string gun) {

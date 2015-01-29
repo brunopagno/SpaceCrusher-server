@@ -19,6 +19,7 @@ public class Server : MonoBehaviour {
     public GameObject asteroideePrefab;
     public GameObject specialPrefab;
     public GameObject lifePrefab;
+    public GameObject coinPrefab;
 
     private int PLAYER_ID = 1;
     private List<PlayerShip> ships = new List<PlayerShip>();
@@ -27,6 +28,7 @@ public class Server : MonoBehaviour {
 
     private float gameTime = 120;
     private float itemDropTimer = 12.8f;
+    private float coinDropTimer = 6.2f;
 
     public string difficulty = "1";
     private string gameIdentifier = "1";
@@ -97,6 +99,11 @@ public class Server : MonoBehaviour {
     [RPC]
     public void SetLife(string message) {
         networkView.RPC("SetLife", RPCMode.Others, message);
+    }
+
+    [RPC]
+    public void SpeedReduction(string message) {
+        networkView.RPC("SpeedReduction", RPCMode.Others, message);
     }
 
     #endregion
@@ -179,6 +186,11 @@ public class Server : MonoBehaviour {
                 } else {
                     Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
                 }
+            }
+            coinDropTimer -= Time.deltaTime;
+            if (coinDropTimer < 0) {
+                coinDropTimer = Random.Range(4.8f, 11.6f);
+                Instantiate(coinPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
             }
 
             bool ended = true;

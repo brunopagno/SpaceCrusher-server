@@ -1238,6 +1238,7 @@ MonoBehaviour:
   asteroideePrefab: {fileID: 100002, guid: f3689299dc44fbe44a22178a59cdc068, type: 2}
   specialPrefab: {fileID: 100002, guid: fb46c02b348512241abdaa6bbbeac6d5, type: 2}
   lifePrefab: {fileID: 100002, guid: 31d62ea8f39c89d478e943356cfe4cf3, type: 2}
+  coinPrefab: {fileID: 108756, guid: 8137d607d5cd9cd4d913eae7eeb9ccbd, type: 2}
   difficulty: 1
 --- !u!148 &798284554
 NetworkView:
