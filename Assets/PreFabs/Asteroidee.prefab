@@ -96,6 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d5b3c080c0ce98418eb875cd9bfa346, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scorePoints: 5
   explosion: {fileID: 19800000, guid: df25814a628702a4eb6e766087621960, type: 2}
 --- !u!212 &21200000
 SpriteRenderer:

@@ -138,9 +138,9 @@ public class PlayerShip : MonoBehaviour {
         }
     }
 
-    public void HitScore() {
+    public void HitScore(int points) {
+        this.score += score;
         GameObject server = GameObject.Find("Server");
-        this.score++;
         server.GetComponent<Server>().SyncScore(Id + ":" + score.ToString());
     }
 
@@ -227,6 +227,12 @@ public class PlayerShip : MonoBehaviour {
         GameObject server = GameObject.Find("Server");
         specialAmmo++;
         server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
+    }
+
+    public void CollectCoin() {
+        score += 8;
+        GameObject server = GameObject.Find("Server");
+        server.GetComponent<Server>().SyncScore("" + Id + ":" + Score);
     }
 
     public void EndedGame() {

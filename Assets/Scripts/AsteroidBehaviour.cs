@@ -4,6 +4,7 @@ using System.Collections;
 public class AsteroidBehaviour : MonoBehaviour {
 
     private float asteroidSpeed;
+    public int scorePoints = 1;
     public ParticleSystem explosion;
 
     void Start() {
@@ -24,7 +25,7 @@ public class AsteroidBehaviour : MonoBehaviour {
             RemoveAsteroid();
         }
         if (other.tag == "Bullet") {
-            other.gameObject.GetComponent<BulletBehaviour>().Owner.HitScore();
+            other.gameObject.GetComponent<BulletBehaviour>().Owner.HitScore(scorePoints);
             Instantiate(explosion, other.gameObject.transform.position, other.gameObject.transform.rotation);
             Destroy(other.gameObject);
             RemoveAsteroid();

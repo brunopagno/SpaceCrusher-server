@@ -21,8 +21,7 @@ public class CollectableBehaviour : MonoBehaviour {
             } else if (something == 2) {
                 other.gameObject.GetComponent<PlayerShip>().CollectSpecial();
             } else {
-                // TODO
-                //other.gameObject.GetComponent<PlayerShip>().CollectCoin();
+                other.gameObject.GetComponent<PlayerShip>().CollectCoin();
             }
             Destroy(gameObject);
         }
