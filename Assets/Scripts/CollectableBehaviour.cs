@@ -18,8 +18,10 @@ public class CollectableBehaviour : MonoBehaviour {
         if (other.tag == "Player") {
             if (something == 1) {
                 other.gameObject.GetComponent<PlayerShip>().CollectLife();
-            } else {
+            } else if (something == 2) {
                 other.gameObject.GetComponent<PlayerShip>().CollectSpecial();
+            } else {
+                other.gameObject.GetComponent<PlayerShip>().CollectCoin();
             }
             Destroy(gameObject);
         }

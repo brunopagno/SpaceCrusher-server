@@ -3,6 +3,10 @@ using System.Collections;
 
 public class PlayerShip : MonoBehaviour {
 
+    enum ShipState {
+        Normal, Shaken
+    }
+
     protected int id;
     public int Id {
         get { return this.id; }
@@ -29,15 +33,21 @@ public class PlayerShip : MonoBehaviour {
     public GameObject bullet;
     public GameObject bulletOther;
 
-    public int life = 3;
-    private float time = 0;
-    private float gunTime = 0;
+    private ShipState state = ShipState.Normal;
 
-    public int gun2Ammo = 1;
-    public int gun3Ammo = 1;
+    private float timer = 0;
+    private float gunTimer = 0;
+    private float bombTimer = -10;
+
+    public int life = 3;
+    public int gun2Ammo = 2;
+    public int gun3Ammo = 2;
     public int specialAmmo = 0;
+
     private int gun = 1;
-    
+    private float originalGunSpeed;
+    public float gunSpeed = 0.46f;
+
     private bool endedGame;
 
     public int timesGun2;
@@ -46,13 +56,13 @@ public class PlayerShip : MonoBehaviour {
     public int timesHit;
     public int lifeCollected;
     public int specialCollected;
-    public int rouletteRounds;
     public int gun2_sent;
     public int gun3_sent;
     public int life_sent;
 
     void Start() {
         this.color = dotRenderer.color;
+        this.originalGunSpeed = gunSpeed;
     }
 
     internal void RemoveFromGame() {
@@ -71,38 +81,38 @@ public class PlayerShip : MonoBehaviour {
         if (endedGame) {
             return;
         }
-        time += Time.deltaTime;
+        timer += Time.deltaTime;
         if (life == 0) {
-            if (time > 3) {
+            if (timer > 3) {
                 Destroy(gameObject.GetComponent<Rigidbody2D>());
-                Destroy(gameObject.GetComponent<CircleCollider2D>());
+                Destroy(gameObject.GetComponent<BoxCollider2D>());
                 Destroy(gameObject.GetComponent<SpriteRenderer>());
             }
             return;
         }
         switch (gun) {
             case 1:
-                if (time > 0.46f) {
-                    time = 0;
+                if (timer > gunSpeed) {
+                    timer = 0;
                     GameObject bb = (GameObject)Instantiate(bullet, bulletSocket.transform.position, bullet.transform.rotation);
                     bb.GetComponent<BulletBehaviour>().AssignOwner(this);
                 }
                 break;
             case 2:
-                if (time > 0.05f) {
-                    time = 0;
+                if (timer > 0.05f) {
+                    timer = 0;
                     GameObject bb = (GameObject)Instantiate(bullet, bulletSocket.transform.position, bullet.transform.rotation);
                     bb.GetComponent<BulletBehaviour>().AssignOwner(this);
                 }
-                gunTime += Time.deltaTime;
-                if (gunTime > 2f) {
+                gunTimer += Time.deltaTime;
+                if (gunTimer > 2f) {
                     this.SetGun("gun1");
-                    gunTime = 0;
+                    gunTimer = 0;
                 }
                 break;
             case 3:
-                if (time > 0.5f) {
-                    time = 0;
+                if (timer > 0.5f) {
+                    timer = 0;
                     GameObject bba = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position, bullet.transform.rotation);
                     GameObject bbb = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position + Vector3.right, bullet.transform.rotation);
                     GameObject bbc = (GameObject)Instantiate(bulletOther, bulletSocket.transform.position + Vector3.left, bullet.transform.rotation);
@@ -110,20 +120,27 @@ public class PlayerShip : MonoBehaviour {
                     bbb.GetComponent<BulletBehaviour>().AssignOwner(this);
                     bbc.GetComponent<BulletBehaviour>().AssignOwner(this);
                 }
-                gunTime += Time.deltaTime;
-                if (gunTime > 2f) {
+                gunTimer += Time.deltaTime;
+                if (gunTimer > 2f) {
                     this.SetGun("gun1");
-                    gunTime = 0;
+                    gunTimer = 0;
                 }
                 break;
             case 4:
                 break;
         }
+        if (bombTimer > -5f) {
+            bombTimer -= Time.deltaTime;
+            if (bombTimer < 0) {
+                bombTimer = -10;
+                RecoverAfterBomb();
+            }
+        }
     }
 
-    public void HitScore() {
+    public void HitScore(int points) {
+        this.score += points;
         GameObject server = GameObject.Find("Server");
-        this.score++;
         server.GetComponent<Server>().SyncScore(Id + ":" + score.ToString());
     }
 
@@ -135,6 +152,22 @@ public class PlayerShip : MonoBehaviour {
         GameObject server = GameObject.Find("Server");
         this.life--;
         server.GetComponent<Server>().SetLife(Id + ":" + life.ToString());
+    }
+
+    public void HitByBomb() {
+        bombTimer = 5;
+        originalGunSpeed = gunSpeed;
+        gunSpeed /= 2;
+        // TODO add something that shows that the player is slow
+        GameObject server = GameObject.Find("Server");
+        server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "yes");
+    }
+
+    public void RecoverAfterBomb() {
+        gunSpeed = originalGunSpeed;
+        // TODO remove something that shows that the player is slow
+        GameObject server = GameObject.Find("Server");
+        server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "no");
     }
 
     public void SetGun(string gun) {
@@ -172,13 +205,14 @@ public class PlayerShip : MonoBehaviour {
             this.gun = 4;
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
-            shipCollider.enabled = false;
-            this.color = this.dotRenderer.color;
-            this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
+            //shipCollider.enabled = false;
+            //this.color = this.dotRenderer.color;
+            //this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
         } else {
             this.dotRenderer.color = this.color;
             shipCollider.enabled = true;
         }
+        timer = 0;
     }
 
     public void CollectLife() {
@@ -195,21 +229,16 @@ public class PlayerShip : MonoBehaviour {
         server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
     }
 
-    public void RouletteResult(int ammo2, int ammo3, int lifep) {
-        rouletteRounds++;
+    public void CollectCoin() {
+        score += 8;
         GameObject server = GameObject.Find("Server");
-        gun2Ammo += ammo2;
-        gun3Ammo += ammo3;
-        life += lifep;
-        server.GetComponent<Server>().SetBulletsGun2("" + Id + ":" + gun2Ammo);
-        server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
-        server.GetComponent<Server>().SetLife("" + Id + ":" + life);
+        server.GetComponent<Server>().SyncScore("" + Id + ":" + Score);
     }
 
     public void EndedGame() {
         endedGame = true;
         Destroy(gameObject.GetComponent<Rigidbody2D>());
-        Destroy(gameObject.GetComponent<CircleCollider2D>());
+        Destroy(gameObject.GetComponent<BoxCollider2D>());
         Destroy(gameObject.GetComponent<SpriteRenderer>());
     }
 }

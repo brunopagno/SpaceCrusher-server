@@ -102,6 +102,19 @@ MonoBehaviour:
   bullet: {fileID: 100000, guid: 4181d499d3746404e94faf8aa05cd3e6, type: 2}
   bulletOther: {fileID: 100000, guid: 878281817614d9c448f83a02a2c449e6, type: 2}
   life: 3
+  gun2Ammo: 2
+  gun3Ammo: 2
+  specialAmmo: 0
+  gunSpeed: .460000008
+  timesGun2: 0
+  timesGun3: 0
+  timesSpecial: 0
+  timesHit: 0
+  lifeCollected: 0
+  specialCollected: 0
+  gun2_sent: 0
+  gun3_sent: 0
+  life_sent: 0
 --- !u!212 &21200000
 SpriteRenderer:
   m_ObjectHideFlags: 1
