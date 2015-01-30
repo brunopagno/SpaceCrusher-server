@@ -34,6 +34,10 @@ public class Server : MonoBehaviour {
     private string gameIdentifier = "1";
 
     void StartServer() {
+        // /* Comente se não for usar master server local
+        MasterServer.ipAddress = "143.54.13.238";
+        MasterServer.port = 23466;
+        // */
         Network.InitializeServer(maxConnections, port, false);
         MasterServer.RegisterHost(TYPE_NAME, GAME_NAME);
         state = GameState.Unstarted;
