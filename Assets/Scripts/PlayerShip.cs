@@ -205,9 +205,9 @@ public class PlayerShip : MonoBehaviour {
             this.gun = 4;
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
-            shipCollider.enabled = false;
-            this.color = this.dotRenderer.color;
-            this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
+            //shipCollider.enabled = false;
+            //this.color = this.dotRenderer.color;
+            //this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
         } else {
             this.dotRenderer.color = this.color;
             shipCollider.enabled = true;
