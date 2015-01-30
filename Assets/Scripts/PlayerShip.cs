@@ -139,7 +139,7 @@ public class PlayerShip : MonoBehaviour {
     }
 
     public void HitScore(int points) {
-        this.score += score;
+        this.score += points;
         GameObject server = GameObject.Find("Server");
         server.GetComponent<Server>().SyncScore(Id + ":" + score.ToString());
     }
