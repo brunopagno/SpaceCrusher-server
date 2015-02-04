@@ -29,6 +29,8 @@ public class PlayerShip : MonoBehaviour {
     public GameObject bullet;
     public GameObject bulletOther;
 
+    public GameObject bombMode;
+
     private float timer = 0;
     private float gunTimer = 0;
     private float bombTimer = -10;
@@ -171,6 +173,7 @@ public class PlayerShip : MonoBehaviour {
     }
 
     public void SetGun(string gun) {
+        bombMode.SetActive(false);
         if (gun.Equals("gun1")) {
             this.gun = 1;
         } else if (gun.Equals("gun2")) {
@@ -194,7 +197,6 @@ public class PlayerShip : MonoBehaviour {
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
         }
-
         if (gun.Equals("gunSpecial")) {
             timesSpecial++;
             specialAmmo--;
@@ -203,6 +205,7 @@ public class PlayerShip : MonoBehaviour {
                 return;
             }
             this.gun = 4;
+            bombMode.SetActive(true);
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
             shipCollider.enabled = false;
