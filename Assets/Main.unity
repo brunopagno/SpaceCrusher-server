@@ -1239,6 +1239,7 @@ MonoBehaviour:
   specialPrefab: {fileID: 100002, guid: fb46c02b348512241abdaa6bbbeac6d5, type: 2}
   lifePrefab: {fileID: 100002, guid: 31d62ea8f39c89d478e943356cfe4cf3, type: 2}
   coinPrefab: {fileID: 108756, guid: 8137d607d5cd9cd4d913eae7eeb9ccbd, type: 2}
+  bombPrefab: {fileID: 194082, guid: caaf43440f2885741a973b062332af29, type: 2}
   difficulty: 1
 --- !u!148 &798284554
 NetworkView:

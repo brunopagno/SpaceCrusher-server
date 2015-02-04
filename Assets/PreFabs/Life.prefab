@@ -97,7 +97,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 3.04999995
-  explosion: {fileID: 0}
   something: 1
 --- !u!212 &21200000
 SpriteRenderer:
@@ -119,7 +118,7 @@ SpriteRenderer:
   m_ScaleInLightmap: 1
   m_SortingLayerID: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: c24cc987ad93a8f469f8c721a7c31379, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 329ba9e12e57bac478deac9c407647ce, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &100100000
 Prefab:

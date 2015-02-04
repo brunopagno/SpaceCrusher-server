@@ -3,10 +3,6 @@ using System.Collections;
 
 public class PlayerShip : MonoBehaviour {
 
-    enum ShipState {
-        Normal, Shaken
-    }
-
     protected int id;
     public int Id {
         get { return this.id; }
@@ -33,7 +29,7 @@ public class PlayerShip : MonoBehaviour {
     public GameObject bullet;
     public GameObject bulletOther;
 
-    private ShipState state = ShipState.Normal;
+    public GameObject bombMode;
 
     private float timer = 0;
     private float gunTimer = 0;
@@ -170,7 +166,14 @@ public class PlayerShip : MonoBehaviour {
         server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "no");
     }
 
+    public void AfterBombDropped() {
+        this.dotRenderer.color = this.color;
+        shipCollider.enabled = true;
+        SetGun("gun1");
+    }
+
     public void SetGun(string gun) {
+        bombMode.SetActive(false);
         if (gun.Equals("gun1")) {
             this.gun = 1;
         } else if (gun.Equals("gun2")) {
@@ -194,7 +197,6 @@ public class PlayerShip : MonoBehaviour {
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
         }
-
         if (gun.Equals("gunSpecial")) {
             timesSpecial++;
             specialAmmo--;
@@ -203,14 +205,12 @@ public class PlayerShip : MonoBehaviour {
                 return;
             }
             this.gun = 4;
+            bombMode.SetActive(true);
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
-            //shipCollider.enabled = false;
-            //this.color = this.dotRenderer.color;
-            //this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
-        } else {
-            this.dotRenderer.color = this.color;
-            shipCollider.enabled = true;
+            shipCollider.enabled = false;
+            this.color = this.dotRenderer.color;
+            this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
         }
         timer = 0;
     }

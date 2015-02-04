@@ -9,6 +9,12 @@ public class AsteroidBehaviour : MonoBehaviour {
 
     void Start() {
         this.asteroidSpeed = Random.Range(3f, 5.5f);
+        if (asteroidSpeed > 4f) {
+            scorePoints += 1;
+        }
+        if (asteroidSpeed > 5f) {
+            scorePoints += 1;
+        }
     }
 
     void Update() {

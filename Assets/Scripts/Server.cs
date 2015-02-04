@@ -20,6 +20,7 @@ public class Server : MonoBehaviour {
     public GameObject specialPrefab;
     public GameObject lifePrefab;
     public GameObject coinPrefab;
+    public GameObject bombPrefab;
 
     private int PLAYER_ID = 1;
     private List<PlayerShip> ships = new List<PlayerShip>();
@@ -132,6 +133,14 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
+    void LaunchBomb(string message) {
+        Debug.Log("LAUNCH BOMB: " + message);
+        PlayerShip s = GetShip(int.Parse(message));
+        GameObject bomb = (GameObject)Instantiate(bombPrefab, new Vector3(s.transform.position.x, 9, 0), Quaternion.identity);
+        bomb.GetComponent<BombBehaviour>().Launch(s);
+    }
+
+    [RPC]
     void RPCStart(string nothing) {
         StartGame();
     }
@@ -184,12 +193,12 @@ public class Server : MonoBehaviour {
             itemDropTimer -= Time.deltaTime;
             if (itemDropTimer <= 0) {
                 itemDropTimer = Random.Range(8f, 15f);
-                int rand = Random.Range(0, 99);
-                if (rand % 2 == 0) {
+                //int rand = Random.Range(0, 99);
+                //if (rand % 2 == 0) {
                     Instantiate(specialPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
-                } else {
-                    Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
-                }
+                //} else {
+                //    Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+                //}
             }
             coinDropTimer -= Time.deltaTime;
             if (coinDropTimer < 0) {
