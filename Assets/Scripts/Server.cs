@@ -193,12 +193,12 @@ public class Server : MonoBehaviour {
             itemDropTimer -= Time.deltaTime;
             if (itemDropTimer <= 0) {
                 itemDropTimer = Random.Range(8f, 15f);
-                //int rand = Random.Range(0, 99);
-                //if (rand % 2 == 0) {
+                int rand = Random.Range(0, 99);
+                if (rand % 2 == 0) {
                     Instantiate(specialPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
-                //} else {
-                //    Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
-                //}
+                } else {
+                    Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+                }
             }
             coinDropTimer -= Time.deltaTime;
             if (coinDropTimer < 0) {
