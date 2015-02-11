@@ -198,13 +198,13 @@ public class PlayerShip : MonoBehaviour {
             server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
         }
         if (gun.Equals("gunSpecial")) {
-            timesSpecial++;
             specialAmmo--;
             if (specialAmmo < 0) {
                 specialAmmo = 0;
                 return;
             }
             this.gun = 4;
+            timesSpecial++;
             bombMode.SetActive(true);
             GameObject server = GameObject.Find("Server");
             server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);

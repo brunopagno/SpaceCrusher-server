@@ -34,6 +34,13 @@ public class Server : MonoBehaviour {
     public string difficulty = "1";
     private string gameIdentifier = "1";
 
+    #region ConfigVariables
+
+    private bool vibrationActive = true;
+    private string buttonSize = "1";
+
+    #endregion
+
     void StartServer() {
         // /* Comente se não for usar master server local
         MasterServer.ipAddress = "143.54.13.238";
@@ -60,6 +67,8 @@ public class Server : MonoBehaviour {
             ship.Player = player;
             ships.Add(ship);
             RPCConnect("PID:" + ship.Id);
+
+            InitialConfig("vibration:" + vibrationActive.ToString() + "|" + "button_size:" + buttonSize);
         }
     }
 
@@ -109,6 +118,11 @@ public class Server : MonoBehaviour {
     [RPC]
     public void SpeedReduction(string message) {
         networkView.RPC("SpeedReduction", RPCMode.Others, message);
+    }
+
+    [RPC]
+    public void InitialConfig(string message) {
+        networkView.RPC("InitialConfig", RPCMode.Others, message);
     }
 
     #endregion
@@ -281,6 +295,9 @@ public class Server : MonoBehaviour {
                 }
                 GUILayout.Label("Difficulty (int):");
                 difficulty = GUILayout.TextField(difficulty);
+                vibrationActive = GUI.Toggle(new Rect(Screen.width - 80, 10, 100, 20), vibrationActive, " Vibration");
+                GUI.Label(new Rect(Screen.width - 125, 35, 70, 20), "Button size");
+                buttonSize = GUI.TextField(new Rect(Screen.width - 50, 35, 35, 20), buttonSize);
             } else {
                 if (ships.Count < 1) {
                     GUILayout.Label("Waiting for players to connect");
