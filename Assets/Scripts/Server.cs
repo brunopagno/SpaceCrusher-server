@@ -34,9 +34,12 @@ public class Server : MonoBehaviour {
     public string difficulty = "1";
     private string gameIdentifier = "1";
 
+    private int leftMisses, rightMisses, weaponsMisses;
+
     #region ConfigVariables
 
     private bool vibrationActive = true;
+    private bool showMissedClicks = false;
     private string buttonSize = "1";
 
     #endregion
@@ -144,6 +147,19 @@ public class Server : MonoBehaviour {
         string[] d = message.Split(':');
         PlayerShip s = GetShip(int.Parse(d[0]));
         s.SetGun(d[1]);
+    }
+
+    [RPC]
+    public void MissedClicks(string message) {
+        string[] d = message.Split(':')[1].Split(',');
+        switch (d[0]) {
+            case "Left":
+                int.TryParse(d[1], out leftMisses); break;
+            case "Right":
+                int.TryParse(d[1], out rightMisses); break;
+            case "Weapons":
+                int.TryParse(d[1], out weaponsMisses); break;
+        }
     }
 
     [RPC]
@@ -295,9 +311,10 @@ public class Server : MonoBehaviour {
                 }
                 GUILayout.Label("Difficulty (int):");
                 difficulty = GUILayout.TextField(difficulty);
-                vibrationActive = GUI.Toggle(new Rect(Screen.width - 80, 10, 100, 20), vibrationActive, " Vibration");
+                vibrationActive = GUI.Toggle(new Rect(Screen.width - 130, 10, 100, 20), vibrationActive, " Vibration");
                 GUI.Label(new Rect(Screen.width - 125, 35, 70, 20), "Button size");
                 buttonSize = GUI.TextField(new Rect(Screen.width - 50, 35, 35, 20), buttonSize);
+                showMissedClicks = GUI.Toggle(new Rect(Screen.width - 130, 60, 100, 20), showMissedClicks, " Missed Clicks");
             } else {
                 if (ships.Count < 1) {
                     GUILayout.Label("Waiting for players to connect");
@@ -308,6 +325,9 @@ public class Server : MonoBehaviour {
         }
         if (state == GameState.Started) {
             GUILayout.Label("Seconds remaining: " + gameTime.ToString("N"));
+            if (showMissedClicks) {
+                GUILayout.Label("Misses (left | right | weapons: " + leftMisses + " | " + rightMisses + " | " + weaponsMisses);
+            }
         }
         if (state == GameState.Ended) {
             GUILayout.Label("Game [" + gameIdentifier + "] ended.");
