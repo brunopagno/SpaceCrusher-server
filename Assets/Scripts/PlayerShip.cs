@@ -173,7 +173,10 @@ public class PlayerShip : MonoBehaviour {
     }
 
     public void SetGun(string gun) {
-        bombMode.SetActive(false);
+        Server server = GameObject.Find("Server").GetComponent<Server>();
+        if (!server.IsHiddenBomb) {
+            bombMode.SetActive(false);
+        }
         if (gun.Equals("gun1")) {
             this.gun = 1;
         } else if (gun.Equals("gun2")) {
@@ -184,8 +187,7 @@ public class PlayerShip : MonoBehaviour {
                 return;
             }
             this.gun = 2;
-            GameObject server = GameObject.Find("Server");
-            server.GetComponent<Server>().SetBulletsGun2("" + Id + ":" + gun2Ammo);
+            server.SetBulletsGun2("" + Id + ":" + gun2Ammo);
         } else if (gun.Equals("gun3")) {
             timesGun3++;
             gun3Ammo--;
@@ -194,8 +196,7 @@ public class PlayerShip : MonoBehaviour {
                 return;
             }
             this.gun = 3;
-            GameObject server = GameObject.Find("Server");
-            server.GetComponent<Server>().SetBulletsGun3("" + Id + ":" + gun3Ammo);
+            server.SetBulletsGun3("" + Id + ":" + gun3Ammo);
         }
         if (gun.Equals("gunSpecial")) {
             specialAmmo--;
@@ -205,12 +206,15 @@ public class PlayerShip : MonoBehaviour {
             }
             this.gun = 4;
             timesSpecial++;
-            bombMode.SetActive(true);
-            GameObject server = GameObject.Find("Server");
-            server.GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
-            shipCollider.enabled = false;
             this.color = this.dotRenderer.color;
-            this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
+            if (server.IsHiddenBomb) {
+                this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0);
+            } else {
+                this.dotRenderer.color = new Color(this.color.r, this.color.g, this.color.b, 0.2f);
+                bombMode.SetActive(true);
+            }
+            server.SetBulletsSpecial("" + Id + ":" + specialAmmo);
+            shipCollider.enabled = false;
         }
         timer = 0;
     }

@@ -40,7 +40,11 @@ public class Server : MonoBehaviour {
 
     private bool vibrationActive = true;
     private bool showMissedClicks = false;
+    private bool showPrivateInfo = false;
+    private bool hiddenBomb = false;
     private string buttonSize = "1";
+
+    public bool IsHiddenBomb { get { return hiddenBomb; } }
 
     #endregion
 
@@ -311,10 +315,22 @@ public class Server : MonoBehaviour {
                 }
                 GUILayout.Label("Difficulty (int):");
                 difficulty = GUILayout.TextField(difficulty);
-                vibrationActive = GUI.Toggle(new Rect(Screen.width - 130, 10, 100, 20), vibrationActive, " Vibration");
-                GUI.Label(new Rect(Screen.width - 125, 35, 70, 20), "Button size");
-                buttonSize = GUI.TextField(new Rect(Screen.width - 50, 35, 35, 20), buttonSize);
-                showMissedClicks = GUI.Toggle(new Rect(Screen.width - 130, 60, 100, 20), showMissedClicks, " Missed Clicks");
+
+                int y = 10;
+                vibrationActive = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), vibrationActive, " Vibration");
+
+                y += 25;
+                hiddenBomb = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), hiddenBomb, " Hidden bomb");
+
+                y += 25;
+                showPrivateInfo = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), showPrivateInfo, " Private info");
+
+                y += 25;
+                GUI.Label(new Rect(Screen.width - 125, y, 70, 20), "Button size");
+                buttonSize = GUI.TextField(new Rect(Screen.width - 50, y, 35, 20), buttonSize);
+
+                y += 25;
+                showMissedClicks = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), showMissedClicks, " Missed Clicks");
             } else {
                 if (ships.Count < 1) {
                     GUILayout.Label("Waiting for players to connect");
@@ -334,6 +350,15 @@ public class Server : MonoBehaviour {
             foreach (PlayerShip ship in ships) {
                 GUI.contentColor = GetPlayerColor(ship.Id);
                 GUILayout.Label("Player " + ship.Id + ": " + ship.Score + " points");
+            }
+        }
+        if (state != GameState.Unstarted) {
+            GUIStyle gs = new GUIStyle() { fontSize = 30 };
+            PlayerShip ship = GetShip(1);
+            PlayerShip otherShip = GetOtherShip(1);
+            GUI.Label(new Rect(10, 45, 90, 50), "P1 SCORE: " + ship.Score, gs);
+            if (otherShip != null) {
+                GUI.Label(new Rect(10, 45, 90, 50), "P2 SCORE: " + otherShip.Score, gs);
             }
         }
     }
