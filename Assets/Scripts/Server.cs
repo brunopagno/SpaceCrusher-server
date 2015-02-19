@@ -73,9 +73,10 @@ public class Server : MonoBehaviour {
             ship.Id = NextPlayerId();
             ship.Player = player;
             ships.Add(ship);
-            RPCConnect("PID:" + ship.Id);
+            networkView.RPC("RPCConnect", player, "PID:" + ship.Id);
 
-            InitialConfig("vibration:" + vibrationActive.ToString() + "|" + "button_size:" + buttonSize);
+            string command = "vibration:" + vibrationActive.ToString() + "|" + "button_size:" + buttonSize;
+            InitialConfig(command);
         }
     }
 
@@ -94,7 +95,6 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void RPCConnect(string message) {
-        networkView.RPC("RPCConnect", RPCMode.Others, message);
     }
 
     [RPC]
