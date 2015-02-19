@@ -168,7 +168,6 @@ public class Server : MonoBehaviour {
 
     [RPC]
     void LaunchBomb(string message) {
-        Debug.Log("LAUNCH BOMB: " + message);
         PlayerShip s = GetShip(int.Parse(message));
         GameObject bomb = (GameObject)Instantiate(bombPrefab, new Vector3(s.transform.position.x, 9, 0), Quaternion.identity);
         bomb.GetComponent<BombBehaviour>().Launch(s);
@@ -353,12 +352,12 @@ public class Server : MonoBehaviour {
             }
         }
         if (state != GameState.Unstarted) {
-            GUIStyle gs = new GUIStyle() { fontSize = 30 };
+            Debug.Log("somehow it is not working");
             PlayerShip ship = GetShip(1);
             PlayerShip otherShip = GetOtherShip(1);
-            GUI.Label(new Rect(10, 45, 90, 50), "P1 SCORE: " + ship.Score, gs);
+            GUI.Label(new Rect(10, 45, 90, 50), "<color=blue><size=30>P1 SCORE: " + ship.Score + "</size></color>");
             if (otherShip != null) {
-                GUI.Label(new Rect(10, 45, 90, 50), "P2 SCORE: " + otherShip.Score, gs);
+                GUI.Label(new Rect(10, 45, 90, 50), "<color=red><size=30>P2 SCORE: " + otherShip.Score + "</size></color>");
             }
         }
     }
