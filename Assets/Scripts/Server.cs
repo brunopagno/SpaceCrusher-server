@@ -352,12 +352,11 @@ public class Server : MonoBehaviour {
             }
         }
         if (state != GameState.Unstarted) {
-            Debug.Log("somehow it is not working");
             PlayerShip ship = GetShip(1);
             PlayerShip otherShip = GetOtherShip(1);
-            GUI.Label(new Rect(10, 45, 90, 50), "<color=blue><size=30>P1 SCORE: " + ship.Score + "</size></color>");
+            GUI.Label(new Rect(10, 45, 300, 50), "<color=blue><size=28>P1 SCORE: " + ship.Score + "</size></color>");
             if (otherShip != null) {
-                GUI.Label(new Rect(10, 45, 90, 50), "<color=red><size=30>P2 SCORE: " + otherShip.Score + "</size></color>");
+                GUI.Label(new Rect(10, 45, 300, 50), "<color=red><size=28>P2 SCORE: " + otherShip.Score + "</size></color>");
             }
         }
     }

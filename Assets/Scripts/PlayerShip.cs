@@ -170,6 +170,8 @@ public class PlayerShip : MonoBehaviour {
         this.dotRenderer.color = this.color;
         shipCollider.enabled = true;
         SetGun("gun1");
+        GameObject.Find("Server").GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
+        // making sure there was no desync
     }
 
     public void SetGun(string gun) {
