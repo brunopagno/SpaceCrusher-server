@@ -39,11 +39,6 @@ public class AsteroidBehaviour : MonoBehaviour {
     }
 
     public void RemoveAsteroid() {
-        if (transform.position.y > -1) {
-            // TODO
-            //audio.clip = explosionSound
-            //audio.Play ();
-        }
         Server server = GameObject.Find("Server").GetComponent<Server>();
         server.CreateAsteroid();
         Destroy(gameObject);

@@ -31,6 +31,10 @@ public class PlayerShip : MonoBehaviour {
 
     public GameObject bombMode;
 
+    public GameObject hitParticle;
+    public GameObject slowParticle;
+    private GameObject slowInstance;
+
     private float timer = 0;
     private float gunTimer = 0;
     private float bombTimer = -10;
@@ -148,30 +152,30 @@ public class PlayerShip : MonoBehaviour {
         GameObject server = GameObject.Find("Server");
         this.life--;
         server.GetComponent<Server>().SetLife(Id + ":" + life.ToString());
+        Instantiate(hitParticle, transform.position, transform.rotation);
     }
 
     public void HitByBomb() {
         bombTimer = 5;
         originalGunSpeed = gunSpeed;
         gunSpeed /= 2;
-        // TODO add something that shows that the player is slow
         GameObject server = GameObject.Find("Server");
         server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "yes");
+        slowInstance = (GameObject)Instantiate(hitParticle, transform.position, transform.rotation);
     }
 
     public void RecoverAfterBomb() {
         gunSpeed = originalGunSpeed;
-        // TODO remove something that shows that the player is slow
         GameObject server = GameObject.Find("Server");
         server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "no");
+        Destroy(slowInstance);
     }
 
     public void AfterBombDropped() {
         this.dotRenderer.color = this.color;
         shipCollider.enabled = true;
         SetGun("gun1");
-        GameObject.Find("Server").GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo);
-        // making sure there was no desync
+        GameObject.Find("Server").GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo); // making sure there was no desync
     }
 
     public void SetGun(string gun) {

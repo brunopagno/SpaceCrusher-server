@@ -18,12 +18,15 @@ public class BombBehaviour : MonoBehaviour {
         }
     }
 
-    public void RemoveBomb() {
-        if (transform.position.y > -1) {
-            // TODO
-            //audio.clip = explosionSound
-            //audio.Play ();
+    void OnTriggerEnter2D(Collider2D other) {
+        if (other.tag == "Player") {
+            Instantiate(explosion, transform.position, transform.rotation);
+            other.gameObject.GetComponent<PlayerShip>().HitByBomb();
+            RemoveBomb();
         }
+    }
+
+    public void RemoveBomb() {
         Instantiate(explosion, transform.position, transform.rotation);
         owner.AfterBombDropped();
         Destroy(gameObject);
