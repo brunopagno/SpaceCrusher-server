@@ -52,7 +52,9 @@ public class Server : MonoBehaviour {
 
     void StartServer() {
         // /* Comente se não for usar master server local
-        MasterServer.ipAddress = "143.54.13.238";
+        string ip = File.ReadAllText(@"./config");
+        Debug.Log("IP => " + ip);
+        MasterServer.ipAddress = ip;
         MasterServer.port = 23466;
         // */
         Network.InitializeServer(maxConnections, port, false);
@@ -301,15 +303,27 @@ public class Server : MonoBehaviour {
             fileName = "results_" + gameIdentifier + "_" + i++ + ".txt";
         }
         StreamWriter writer = File.CreateText(fileName);
-        writer.WriteLine("id,score,leftMisses,rightMisses,weaponsMisses");
-        PlayerShip s = GetShip(1);
+        writer.WriteLine("id,score,leftMisses,rightMisses,weaponsMisses,life,times_gun2,times_gun3,times_special," +
+                         "times_hit,life_collected,special_collected");
+        WriterWrite(writer, GetShip(1));
+        WriterWrite(writer, GetOtherShip(1));
+        writer.Flush();
+        writer.Close();
+    }
+
+    private void WriterWrite(StreamWriter writer, PlayerShip s) {
         writer.Write(s.Id + "," +
                      s.Score + "," +
                      leftMisses + "," +
                      rightMisses + "," +
-                     weaponsMisses);
-        writer.Flush();
-        writer.Close();
+                     weaponsMisses + "," +
+                     s.life + "," +
+                     s.timesGun2 + "," +
+                     s.timesGun3 + "," +
+                     s.timesSpecial + "," +
+                     s.timesHit + "," +
+                     s.lifeCollected + "," +
+                     s.specialCollected);
     }
 
     public void CreateAsteroid() {

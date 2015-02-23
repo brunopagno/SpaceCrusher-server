@@ -56,9 +56,6 @@ public class PlayerShip : MonoBehaviour {
     public int timesHit;
     public int lifeCollected;
     public int specialCollected;
-    public int gun2_sent;
-    public int gun3_sent;
-    public int life_sent;
 
     void Start() {
         this.color = dotRenderer.color;
