@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -281,6 +282,8 @@ public class Server : MonoBehaviour {
 
     private void EndGame() {
         state = GameState.Ended;
+        WriteLog();
+
         GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject asteroid in asteroids) {
             Destroy(asteroid);
@@ -288,6 +291,20 @@ public class Server : MonoBehaviour {
         foreach (PlayerShip ship in ships) {
             ship.EndedGame();
         }
+    }
+
+    private void WriteLog() {
+        string fileName = "results_" + gameIdentifier + ".txt";
+        int i = 1;
+        while (File.Exists(fileName)) {
+            fileName = "results_" + gameIdentifier + "_" + i++ + ".txt";
+        }
+        StreamWriter writer = File.CreateText(fileName);
+        writer.WriteLine("id,leftMisses,rightMisses,weaponsMisses");
+        PlayerShip s = GetShip(1);
+        writer.Write(s.Id + "," + leftMisses + "," + rightMisses + "," + weaponsMisses);
+        writer.Flush();
+        writer.Close();
     }
 
     public void CreateAsteroid() {
