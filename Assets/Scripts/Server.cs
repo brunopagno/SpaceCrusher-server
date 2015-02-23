@@ -44,6 +44,7 @@ public class Server : MonoBehaviour {
     private bool showPrivateInfo = false;
     private bool hiddenBomb = false;
     private string buttonSize = "1";
+    private bool pretest = false;
 
     public bool IsHiddenBomb { get { return hiddenBomb; } }
 
@@ -228,7 +229,7 @@ public class Server : MonoBehaviour {
             if (itemDropTimer <= 0) {
                 itemDropTimer = Random.Range(8f, 15f);
                 int rand = Random.Range(0, 99);
-                if (rand % 2 == 0) {
+                if (!pretest && rand % 2 == 0) {
                     Instantiate(specialPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
                 } else {
                     Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
@@ -337,6 +338,9 @@ public class Server : MonoBehaviour {
                 difficulty = GUILayout.TextField(difficulty);
 
                 int y = 10;
+                pretest = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), showPrivateInfo, " Pretest");
+
+                y += 25;
                 vibrationActive = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), vibrationActive, " Vibration");
 
                 y += 25;
@@ -375,9 +379,9 @@ public class Server : MonoBehaviour {
         if (state != GameState.Unstarted) {
             PlayerShip ship = GetShip(1);
             PlayerShip otherShip = GetOtherShip(1);
-            GUI.Label(new Rect(10, 45, 300, 50), "<color=blue><size=28>P1 SCORE: " + ship.Score + "</size></color>");
+            GUI.Label(new Rect(10, 45, 300, 50), "<color=blue><size=28>P1 SCORE: " + ship.Score + " LIFE: " + ship.life + "</size></color>");
             if (otherShip != null) {
-                GUI.Label(new Rect(10, 45, 300, 50), "<color=red><size=28>P2 SCORE: " + otherShip.Score + "</size></color>");
+                GUI.Label(new Rect(10, 45, 300, 100), "<color=red><size=28>P2 SCORE: " + otherShip.Score + " LIFE: " + otherShip.life + "</size></color>");
             }
         }
     }
