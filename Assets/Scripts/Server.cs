@@ -314,6 +314,8 @@ public class Server : MonoBehaviour {
     }
 
     private void WriterWrite(StreamWriter writer, PlayerShip s) {
+        if (writer == null || s == null) return;
+
         writer.Write(s.Id + "," +
                      s.Score + "," +
                      leftMisses + "," +
