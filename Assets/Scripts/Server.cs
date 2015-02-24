@@ -352,7 +352,7 @@ public class Server : MonoBehaviour {
                 difficulty = GUILayout.TextField(difficulty);
 
                 int y = 10;
-                pretest = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), showPrivateInfo, " Pretest");
+                pretest = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), pretest, " Pretest");
 
                 y += 25;
                 vibrationActive = GUI.Toggle(new Rect(Screen.width - 130, y, 100, 20), vibrationActive, " Vibration");
