@@ -45,6 +45,7 @@ public class Server : MonoBehaviour {
     private bool hiddenBomb = false;
     private string buttonSize = "1";
     private bool pretest = false;
+    private bool gameEnded = false;
 
     public bool IsHiddenBomb { get { return hiddenBomb; } }
 
@@ -226,7 +227,7 @@ public class Server : MonoBehaviour {
     }
 
     void Update() {
-        if (state == GameState.Started) {
+        if (state == GameState.Started && !gameEnded) {
             itemDropTimer -= Time.deltaTime;
             if (itemDropTimer <= 0) {
                 itemDropTimer = Random.Range(8f, 15f);
@@ -255,6 +256,7 @@ public class Server : MonoBehaviour {
                 ended = true;
             }
             if (ended) {
+                gameEnded = true;
                 EndGame();
             }
         }
