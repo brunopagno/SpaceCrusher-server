@@ -390,7 +390,7 @@ public class Server : MonoBehaviour {
                 GUILayout.Label("Player " + ship.Id + ": " + ship.Score + " points");
             }
         }
-        if (state != GameState.Unstarted) {
+        if (state != GameState.Unstarted && showPrivateInfo) {
             PlayerShip ship = GetShip(1);
             PlayerShip otherShip = GetOtherShip(1);
             GUI.Label(new Rect(10, 45, 300, 50), "<color=blue><size=28>P1 SCORE: " + ship.Score + " LIFE: " + ship.life + "</size></color>");
