@@ -155,7 +155,7 @@ public class PlayerShip : MonoBehaviour {
     public void HitByBomb() {
         bombTimer = 5;
         originalGunSpeed = gunSpeed;
-        gunSpeed /= 2;
+        gunSpeed *= 2;
         GameObject server = GameObject.Find("Server");
         server.GetComponent<Server>().SpeedReduction("" + Id + ":" + "yes");
         slowInstance = (GameObject)Instantiate(hitParticle, transform.position, transform.rotation);

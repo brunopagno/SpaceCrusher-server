@@ -25,6 +25,8 @@ GameObject:
   m_Component:
   - 4: {fileID: 494080}
   - 114: {fileID: 11494080}
+  - 58: {fileID: 5855990}
+  - 50: {fileID: 5044336}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Enemy
@@ -57,6 +59,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 494080}
   m_RootOrder: 0
+--- !u!50 &5044336
+Rigidbody2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 194082}
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: .0500000007
+  m_GravityScale: 1
+  m_FixedAngle: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+--- !u!58 &5855990
+CircleCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 194082}
+  m_Enabled: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Radius: .579999983
+  m_Center: {x: .150000006, y: -.0900000036}
 --- !u!114 &11494080
 MonoBehaviour:
   m_ObjectHideFlags: 1
