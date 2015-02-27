@@ -136,7 +136,7 @@ MonoBehaviour:
   life: 3
   gun2Ammo: 2
   gun3Ammo: 2
-  specialAmmo: 0
+  specialAmmo: 2
   gunSpeed: .460000008
   timesGun2: 0
   timesGun3: 0
@@ -144,9 +144,6 @@ MonoBehaviour:
   timesHit: 0
   lifeCollected: 0
   specialCollected: 0
-  gun2_sent: 0
-  gun3_sent: 0
-  life_sent: 0
 --- !u!212 &21200000
 SpriteRenderer:
   m_ObjectHideFlags: 1

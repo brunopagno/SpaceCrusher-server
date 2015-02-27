@@ -118,6 +118,11 @@ public class Server : MonoBehaviour {
     }
 
     [RPC]
+    public void FreeBombMode(string message) {
+        networkView.RPC("FreeBombMode", RPCMode.Others, message);
+    }
+
+    [RPC]
     public void SyncScore(string message) {
         networkView.RPC("SyncScore", RPCMode.Others, message);
     }
@@ -232,11 +237,11 @@ public class Server : MonoBehaviour {
             if (itemDropTimer <= 0) {
                 itemDropTimer = Random.Range(8f, 15f);
                 int rand = Random.Range(0, 99);
-                if (!pretest && rand % 2 == 0) {
+                //if (!pretest && rand % 2 == 0) {
                     Instantiate(specialPrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
-                } else {
-                    Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
-                }
+                //} else {
+                //    Instantiate(lifePrefab, new Vector3(Random.Range(-7, 7), Random.Range(9, 13), 0), Quaternion.identity);
+                //}
             }
             coinDropTimer -= Time.deltaTime;
             if (coinDropTimer < 0) {
@@ -397,9 +402,9 @@ public class Server : MonoBehaviour {
         if (state != GameState.Unstarted && showPrivateInfo) {
             PlayerShip ship = GetShip(1);
             PlayerShip otherShip = GetOtherShip(1);
-            GUI.Label(new Rect(10, 45, 300, 50), "<color=blue><size=28>P1 SCORE: " + ship.Score + " LIFE: " + ship.life + "</size></color>");
+            GUI.Label(new Rect(10, 45, 300, 100), "<color=blue><size=28>P1 SCORE: " + ship.Score + " LIFE: " + ship.life + "</size></color>");
             if (otherShip != null) {
-                GUI.Label(new Rect(10, 45, 300, 100), "<color=red><size=28>P2 SCORE: " + otherShip.Score + " LIFE: " + otherShip.life + "</size></color>");
+                GUI.Label(new Rect(10, 100, 300, 100), "<color=red><size=28>P2 SCORE: " + otherShip.Score + " LIFE: " + otherShip.life + "</size></color>");
             }
         }
     }

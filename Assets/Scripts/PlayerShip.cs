@@ -173,6 +173,7 @@ public class PlayerShip : MonoBehaviour {
         shipCollider.enabled = true;
         SetGun("gun1");
         GameObject.Find("Server").GetComponent<Server>().SetBulletsSpecial("" + Id + ":" + specialAmmo); // making sure there was no desync
+        GameObject.Find("Server").GetComponent<Server>().FreeBombMode("" + Id);
     }
 
     public void SetGun(string gun) {

@@ -7,13 +7,13 @@ public class BombBehaviour : MonoBehaviour {
     private float bombSpeed = 5f;
     public ParticleSystem explosion;
 
-	public void Launch(PlayerShip owner) {
+    public void Launch(PlayerShip owner) {
         this.owner = owner;
     }
 
     void Update() {
         transform.Translate(Vector3.down * Time.deltaTime * bombSpeed);
-        if (Mathf.Abs(transform.position.y - owner.transform.position.y) <= -0.5f) {
+        if ((transform.position.y < owner.transform.position.y - 0.4f) || (transform.position.y < -12)) {
             RemoveBomb();
         }
     }
