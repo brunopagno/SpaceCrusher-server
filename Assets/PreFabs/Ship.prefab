@@ -136,7 +136,7 @@ MonoBehaviour:
   life: 3
   gun2Ammo: 2
   gun3Ammo: 2
-  specialAmmo: 2
+  specialAmmo: 1
   gunSpeed: .460000008
   timesGun2: 0
   timesGun3: 0
