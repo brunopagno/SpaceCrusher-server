@@ -28,7 +28,7 @@ public class Server : MonoBehaviour {
     private GameState state;
     private bool theAsteroidsAreThere = false;
 
-    private float gameTime = 60;
+    private float gameTime = 120;
     private float itemDropTimer = 12.8f;
     private float coinDropTimer = 6.2f;
 
